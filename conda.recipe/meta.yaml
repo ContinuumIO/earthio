@@ -1,0 +1,26 @@
+package:
+  name: elm-readers
+  version: {{ environ['GIT_DESCRIBE_TAG'] }}
+
+build:
+  number: 0
+  pin_depends: record
+
+requirements:
+  build:
+    - python
+    - setuptools
+  run: []
+
+about:
+  home: http://github.com/ContinuumIO/elm
+  license: MIT
+
+extra:
+  maintainers:
+    - Peter Steinberg - Continuum Analytics - psteinberg [at] continuum [dot] io
+
+test:
+  imports:
+    - elm.readers
+
