@@ -1,13 +1,13 @@
 '''
 ------------------
 
-``elm.readers.tif``
+``earthio.tif``
 ~~~~~~~~~~~~~~~~~~~
 
 Tools for reading GeoTiff files.  Typically use the interface through
 
-    - :func:`elm.readers.load_array`
-    - :func:`elm.readers.`load_meta`
+    - :func:`earthio.load_array`
+    - :func:`earthio.`load_meta`
 
 '''
 from collections import OrderedDict
@@ -20,8 +20,8 @@ import numpy as np
 import rasterio as rio
 import xarray as xr
 
-from elm.readers.metadata_selection import match_meta
-from elm.readers.util import (geotransform_to_coords,
+from earthio.metadata_selection import match_meta
+from earthio.util import (geotransform_to_coords,
                               geotransform_to_bounds,
                               SPATIAL_KEYS,
                               raster_as_2d,
@@ -29,7 +29,7 @@ from elm.readers.util import (geotransform_to_coords,
                               take_geo_transform_from_meta,
                               BandSpec)
 
-from elm.readers import ElmStore
+from earthio import ElmStore
 logger = logging.getLogger(__name__)
 
 
@@ -59,7 +59,7 @@ def load_tif_meta(filename):
     '''
     r = rio.open(filename)
     if r.count != 1:
-        raise ValueError('elm.readers.tif only reads tif files with 1 band (shape of [1, y, x]). Found {} bands'.format(r.count))
+        raise ValueError('earthio.tif only reads tif files with 1 band (shape of [1, y, x]). Found {} bands'.format(r.count))
     meta = {'meta': r.meta}
     meta['geo_transform'] = r.get_transform()
     meta['bounds'] = r.bounds
@@ -105,7 +105,7 @@ def load_dir_of_tifs_meta(dir_of_tiffs, band_specs=None, **meta):
 
     Parameters:
         :dir_of_tiffs: Directory with GeoTiffs
-        :band_specs:   List of elm.readers.BandSpec objects
+        :band_specs:   List of earthio.BandSpec objects
         :meta:         included in returned metadata'''
     logger.debug('load_dir_of_tif_meta {}'.format(dir_of_tiffs))
     tifs = ls_tif_files(dir_of_tiffs)
@@ -156,8 +156,8 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, band_specs=None):
     Parameters:
         :dir_of_tiffs: directory of GeoTiff files where each is a
                       single band raster
-        :meta:     meta from elm.readers.load_dir_of_tifs_meta
-        :band_specs: list of elm.readers.BandSpec objects,
+        :meta:     meta from earthio.load_dir_of_tifs_meta
+        :band_specs: list of earthio.BandSpec objects,
                     defaulting to reading all subdatasets
                     as bands
     Returns:

@@ -377,7 +377,7 @@ def set_na_from_meta(es, **kwargs):
      in ElmStore attrs or DataArray attrs
 
     Parameters:
-        :es: elm.readers.ElmStore
+        :es: earthio.ElmStore
         :kwargs: ignored
 
     Recursively searches es's attrs for keys loosely matching:

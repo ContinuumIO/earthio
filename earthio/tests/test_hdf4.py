@@ -5,12 +5,12 @@ import attr
 import numpy as np
 import pytest
 
-from elm.readers.hdf4 import (load_hdf4_meta,
+from earthio.hdf4 import (load_hdf4_meta,
                               load_hdf4_array)
 
-from elm.readers.util import BandSpec
+from earthio.util import BandSpec
 
-from elm.readers.tests.util import (ELM_HAS_EXAMPLES,
+from earthio.tests.util import (ELM_HAS_EXAMPLES,
                                     ELM_EXAMPLE_DATA_PATH,
                                     HDF4_FILES,
                                     assertions_on_metadata,

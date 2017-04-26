@@ -5,10 +5,10 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from elm.readers import *
-from elm.readers.tests.test_hdf4 import HDF4_FILES, band_specs as hdf4_band_specs
-from elm.readers.tests.test_hdf5 import HDF5_FILES, get_band_specs
-from elm.readers.tests.test_tif import TIF_DIR, band_specs as tif_band_specs
+from earthio import *
+from earthio.tests.test_hdf4 import HDF4_FILES, band_specs as hdf4_band_specs
+from earthio.tests.test_hdf5 import HDF5_FILES, get_band_specs
+from earthio.tests.test_tif import TIF_DIR, band_specs as tif_band_specs
 
 
 def random_elm_store_no_meta(width=100, height=200):

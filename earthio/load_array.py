@@ -1,7 +1,7 @@
 '''
 ------------------
 
-``elm.readers.load_array``
+``earthio.load_array``
 ++++++++++++++++++++++++++
 load_array returns an ElmStore for HDF, NetCDF, GeoTiff files
 '''
@@ -11,10 +11,10 @@ import logging
 import os
 import re
 
-from elm.readers.netcdf import load_netcdf_array, load_netcdf_meta
-from elm.readers.hdf4 import load_hdf4_array, load_hdf4_meta
-from elm.readers.hdf5 import load_hdf5_array, load_hdf5_meta
-from elm.readers.tif import load_dir_of_tifs_meta,load_dir_of_tifs_array
+from earthio.netcdf import load_netcdf_array, load_netcdf_meta
+from earthio.hdf4 import load_hdf4_array, load_hdf4_meta
+from earthio.hdf5 import load_hdf5_array, load_hdf5_meta
+from earthio.tif import load_dir_of_tifs_meta,load_dir_of_tifs_array
 
 __all__ = ['load_array', 'load_meta']
 
@@ -49,8 +49,8 @@ def load_array(filename, meta=None, band_specs=None, reader=None):
     Parameters:
         :filename:   filename (HDF4 / 5 or NetCDF) or directory name (TIF)
         :meta:       meta data from "filename" already loaded
-        :band_specs: list of strings or elm.readers.BandSpec objects
-        :reader:     named reader from elm.readers - one of:  ('tif', 'hdf4', 'hdf5', 'netcdf')
+        :band_specs: list of strings or earthio.BandSpec objects
+        :reader:     named reader from earthio - one of:  ('tif', 'hdf4', 'hdf5', 'netcdf')
 
     Returns:
         :es:         ElmStore (xarray.Dataset) with bands specified by band_specs as DataArrays in "data_vars" attribute
@@ -102,7 +102,7 @@ def load_meta(filename, **kwargs):
     Parameters:
         :filename:       filename (HDF4 / 5 and NetCDF) or directory (TIF)
         :kwargs:         keyword args that may include "band_specs", \
-                        a list of string band names or elm.readers.BandSpec objects
+                        a list of string band names or earthio.BandSpec objects
 
     Returns:
         :meta:           dict with the following keys
