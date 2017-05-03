@@ -1,13 +1,13 @@
 '''
 ----------------------
 
-``elm.readers.netcdf``
+``earthio.netcdf``
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Tools for reading NetCDF files.  Typically use the interface through
 
-    - :func:`elm.readers.load_array`
-    - :func:`elm.readers.load_meta`
+    - :func:`earthio.load_array`
+    - :func:`earthio.load_meta`
 
 '''
 from __future__ import print_function
@@ -19,11 +19,11 @@ from affine import Affine
 import netCDF4 as nc
 import xarray as xr
 
-from elm.readers.util import (geotransform_to_bounds,
+from earthio.util import (geotransform_to_bounds,
                               VALID_X_NAMES, VALID_Y_NAMES,
                               take_geo_transform_from_meta)
-from elm.readers import ElmStore
-from elm.readers.metadata_selection import match_meta
+from earthio import ElmStore
+from earthio.metadata_selection import match_meta
 
 __all__ = ['load_netcdf_meta', 'load_netcdf_array']
 

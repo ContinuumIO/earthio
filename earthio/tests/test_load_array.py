@@ -2,11 +2,11 @@ import os
 
 import pytest
 
-from elm.readers import *
-from elm.readers.tests.util import (TIF_FILES, HDF5_FILES,
+from earthio import *
+from earthio.tests.util import (TIF_FILES, HDF5_FILES,
                                     HDF4_FILES, NETCDF_FILES,
                                     ELM_HAS_EXAMPLES)
-from elm.readers.tests.test_tif import band_specs as tif_band_specs
+from earthio.tests.test_tif import band_specs as tif_band_specs
 TRIALS = {'tif': os.path.dirname(TIF_FILES[0]),
           'hdf5': HDF5_FILES[0],
           'hdf4': HDF4_FILES[0],

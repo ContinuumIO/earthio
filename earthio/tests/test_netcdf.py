@@ -4,11 +4,11 @@ import sys
 import pytest
 import numpy as np
 
-from elm.readers.netcdf import load_netcdf_meta, load_netcdf_array
-from elm.readers.tests.util import (ELM_HAS_EXAMPLES,
+from earthio.netcdf import load_netcdf_meta, load_netcdf_array
+from earthio.tests.util import (ELM_HAS_EXAMPLES,
                                     NETCDF_FILES,
                                     assertions_on_metadata)
-from elm.readers.util import BandSpec
+from earthio.util import BandSpec
 NETCDF_DIR = os.path.dirname(NETCDF_FILES[0])
 
 variables_dict = dict(HQobservationTime='HQobservationTime')
