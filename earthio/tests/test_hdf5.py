@@ -6,17 +6,17 @@ import attr
 import numpy as np
 import pytest
 
-from elm.readers.hdf5 import (load_hdf5_meta,
+from earthio.hdf5 import (load_hdf5_meta,
                               load_subdataset,
                               load_hdf5_array)
 
-from elm.readers.tests.util import (ELM_HAS_EXAMPLES,
+from earthio.tests.util import (ELM_HAS_EXAMPLES,
                                     ELM_EXAMPLE_DATA_PATH,
                                     HDF5_FILES,
                                     assertions_on_metadata,
                                     assertions_on_band_metadata)
 
-from elm.readers.util import BandSpec
+from earthio.util import BandSpec
 
 HDF5_DIR = os.path.dirname(HDF5_FILES[0])
 
@@ -37,7 +37,7 @@ def get_band_specs(filename):
         band_specs.append(BandSpec(search_key='sub_dataset_name',
                                search_value=sub + '$', # line ender regex
                                name=sub,
-                               meta_to_geotransform="elm.readers.util:grid_header_to_geo_transform",
+                               meta_to_geotransform="earthio.util:grid_header_to_geo_transform",
                                stored_coords_order=("x", "y")))
     return sub_dataset_names, band_specs
 

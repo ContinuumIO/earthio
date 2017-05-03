@@ -1,0 +1,41 @@
+name: earth-env
+
+channels:
+  - ioam
+  - conda-forge
+  - scitools/label/dev
+
+dependencies:
+  - attrs
+  - bokeh
+  - cartopy
+  - colorcet
+  - dask
+  - datashader
+  - dill
+  - distributed
+  - geoviews
+  - holoviews
+  - iris
+  - jupyter
+  - krb5
+  - matplotlib
+  - networkx
+  - numba
+  - numpy
+  - pandas
+  - paramnb
+  - pyproj
+  - pytables
+  - pytest
+  - python=3.5
+  - rasterio
+  - requests
+  - scipy
+  - shapely
+  - statsmodels
+  - tblib
+  - xarray
+  - yaml
+  - pip:
+      - cachey

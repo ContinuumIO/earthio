@@ -1,13 +1,13 @@
 '''
 --------------------
 
-``elm.readers.hdf5``
+``earthio.hdf5``
 ~~~~~~~~~~~~~~~~~~~~~
 
 Tools for reading HDF5 files.  Typically use the interface through
 
-    - :func:`elm.readers.load_array`
-    - :func:`elm.readers.load_meta`
+    - :func:`earthio.load_array`
+    - :func:`earthio.load_meta`
 
 '''
 
@@ -22,7 +22,7 @@ from gdalconst import GA_ReadOnly
 import numpy as np
 import xarray as xr
 
-from elm.readers.util import (geotransform_to_bounds,
+from earthio.util import (geotransform_to_bounds,
                               geotransform_to_coords,
                               Canvas,
                               BandSpec,
@@ -32,8 +32,8 @@ from elm.readers.util import (geotransform_to_bounds,
                               take_geo_transform_from_meta,
                               window_to_gdal_read_kwargs)
 
-from elm.readers import ElmStore
-from elm.readers.metadata_selection import match_meta
+from earthio import ElmStore
+from earthio.metadata_selection import match_meta
 
 __all__ = [
     'load_hdf5_meta',
@@ -116,8 +116,8 @@ def load_hdf5_array(datafile, meta, band_specs):
 
     Parameters:
         :datafile: filename
-        :meta:     meta from elm.readers.load_hdf5_meta
-        :band_specs: list of elm.readers.BandSpec objects,
+        :meta:     meta from earthio.load_hdf5_meta
+        :band_specs: list of earthio.BandSpec objects,
                     defaulting to reading all subdatasets
                     as bands
 
