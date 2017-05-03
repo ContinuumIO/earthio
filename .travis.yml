@@ -2,39 +2,31 @@ language: python
 
 python:
   - "2.7"
-  - "3.4"
+  #- "3.4"
   - "3.5"
   - "3.6"
 
 install:
-  - export BUILD_DIR=`pwd`
-  - export GIT_TRACE=1
-  - echo Install Git LFS
-  - curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-  - sudo apt-get install git-lfs
-  - git lfs install
-  - export lfs_version=$(git lfs version | grep -Eoi "\d+\.\d+\.\d+")
-  - export PATH=`pwd`/git-lfs-${lfs_version}:$PATH
-  - env | sort
-  - echo Install Miniconda
+  - export BUILD_DIR=`pwd -P`
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes true
-  - conda install yaml
-  - conda update conda conda-env
-  - echo Create elm-env
-  - conda env update || conda env create
-  - source activate elm-env
-  - conda list
-  - export ELM_EXAMPLE_DATA_PATH=$(pwd)/elm-data
-  - git clone http://github.com/ContinuumIO/elm-data || git checkout -f HEAD
-  - cd $ELM_EXAMPLE_DATA_PATH && git remote add elm_data https://github.com/ContinuumIO/elm-data.git && git reset && git lfs pull elm_data && echo "git lfs pull ok"
-  - cd $ELM_EXAMPLE_DATA_PATH && git log
+
+  - conda create -n earth-env -c ioam -c conda-forge -c scitools/label/dev -c gbrener earth-env
+
+  # TODO: Fix this to use the latest conda package for elm, instead of the master branch
+  - git clone http://github.com/ContinuumIO/elm /tmp/elm && pushd /tmp/elm && git fetch --all && git checkout python-2-separate-pkgs && popd && cp -avf /tmp/elm/elm/[^r]* ./elm/
+  - conda env update -n earth-env -f /tmp/elm/environment.yml # for elm
+  - conda env update -n earth-env -f environment.yml # for elm-readers
+  - source activate earth-env
+  - python setup.py develop
+
+  - export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
+  - conda install -c defaults -c conda-forge requests pbzip2 python-magic six # for download_test_data.py
+  - mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python "${BUILD_DIR}/scripts/download_test_data.py"
   - cd $BUILD_DIR
   - ls -lRth $ELM_EXAMPLE_DATA_PATH
-  - git lfs logs last
-  - python setup.py develop
 
 script:
   - cd $BUILD_DIR
