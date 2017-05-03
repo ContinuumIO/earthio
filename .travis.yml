@@ -7,20 +7,12 @@ python:
   - "3.6"
 
 install:
-  - export BUILD_DIR=`pwd`
-  - export GIT_TRACE=1
-  - echo Install Git LFS
-  - curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-  - sudo apt-get install git-lfs
-  - git lfs install
-  - export lfs_version=$(git lfs version | grep -Eoi "\d+\.\d+\.\d+")
-  - export PATH=`pwd`/git-lfs-${lfs_version}:$PATH
-  - env | sort
-  - echo Install Miniconda
+  - export BUILD_DIR=`pwd -P`
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes true
+
   - conda install -n earth-env -c gbrener earth-env
   - source activate earth-env
   - export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
