@@ -6,7 +6,8 @@ Currently this can be installed with
 
 ```
 git clone https://github.com/ContinuumIO/earth-env
-cd earth-env && conda env create --file environment_36.yml
+conda create -n earth-env -c ioam -c conda-forge -c scitools/label/dev -c gbrener earth-env
+source activate earth-env
 cd ../elm-readers && python setup.py develop
 python -c "from elm.readers import *"
 ```

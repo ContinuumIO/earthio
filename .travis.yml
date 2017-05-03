@@ -15,6 +15,7 @@ install:
 
   - conda create -n earth-env -c ioam -c conda-forge -c scitools/label/dev -c gbrener earth-env
   - source activate earth-env
+  - conda install -c defaults -c conda-forge requests pbzip2 python-magic six # for download_test_data.py
   - export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
   - mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python "${BUILD_DIR}/scripts/download_test_data.py"
   - cd $BUILD_DIR
