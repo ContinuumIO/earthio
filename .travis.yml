@@ -18,13 +18,13 @@ install:
 
   # TODO: Fix this to use the latest conda package for elm, instead of the master branch
   - git clone http://github.com/ContinuumIO/elm /tmp/elm && pushd /tmp/elm && git fetch --all && git checkout python-2-separate-pkgs && popd && mv /tmp/elm/* ./elm/
-
   - conda install -c defaults -c conda-forge requests pbzip2 python-magic six # for download_test_data.py
+  - python setup.py develop
+
   - export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
   - mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python "${BUILD_DIR}/scripts/download_test_data.py"
   - cd $BUILD_DIR
   - ls -lRth $ELM_EXAMPLE_DATA_PATH
-  - python setup.py develop
 
 script:
   - cd $BUILD_DIR
