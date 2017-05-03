@@ -17,7 +17,7 @@ install:
   - source activate earth-env
 
   # TODO: Fix this to use the latest conda package for elm, instead of the master branch
-  - git clone http://github.com/ContinuumIO/elm /tmp/elm && pushd /tmp/elm && git fetch --all && git checkout python-2-separate-pkgs && popd && mv /tmp/elm/* ./elm/
+  - git clone http://github.com/ContinuumIO/elm /tmp/elm && pushd /tmp/elm && git fetch --all && git checkout python-2-separate-pkgs && popd && cp -avf /tmp/elm/elm/[^r]* ./elm/
   - conda install -c defaults -c conda-forge requests pbzip2 python-magic six # for download_test_data.py
   - python setup.py develop
 
