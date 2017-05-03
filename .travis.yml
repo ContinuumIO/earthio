@@ -16,7 +16,7 @@ install:
   - conda create -n earth-env -c ioam -c conda-forge -c scitools/label/dev -c gbrener earth-env
   - source activate earth-env
   - export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
-  - cd $ELM_EXAMPLE_DATA_PATH && python ./scripts/download_test_data.py
+  - mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python ./scripts/download_test_data.py
   - cd $BUILD_DIR
   - ls -lRth $ELM_EXAMPLE_DATA_PATH
   - python setup.py develop
