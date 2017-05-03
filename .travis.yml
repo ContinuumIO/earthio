@@ -2,7 +2,7 @@ language: python
 
 python:
   - "2.7"
-  - "3.4"
+  #- "3.4"
   - "3.5"
   - "3.6"
 
@@ -21,19 +21,12 @@ install:
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes true
-  - conda install yaml
-  - conda update conda conda-env
-  - echo Create elm-env
-  - conda env update || conda env create
-  - source activate elm-env
-  - conda list
-  - export ELM_EXAMPLE_DATA_PATH=$(pwd)/elm-data
-  - git clone http://github.com/ContinuumIO/elm-data || git checkout -f HEAD
-  - cd $ELM_EXAMPLE_DATA_PATH && git remote add elm_data https://github.com/ContinuumIO/elm-data.git && git reset && git lfs pull elm_data && echo "git lfs pull ok"
-  - cd $ELM_EXAMPLE_DATA_PATH && git log
+  - conda install -n earth-env -c gbrener earth-env
+  - source activate earth-env
+  - export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
+  - cd $ELM_EXAMPLE_DATA_PATH && python ./scripts/download_test_data.py
   - cd $BUILD_DIR
   - ls -lRth $ELM_EXAMPLE_DATA_PATH
-  - git lfs logs last
   - python setup.py develop
 
 script:
