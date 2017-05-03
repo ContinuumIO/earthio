@@ -13,7 +13,7 @@ install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes true
 
-  - conda create -n earth-env -c gbrener earth-env
+  - conda create -n earth-env -c ioam -c conda-forge -c scitools/label/dev -c gbrener earth-env
   - source activate earth-env
   - export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
   - cd $ELM_EXAMPLE_DATA_PATH && python ./scripts/download_test_data.py
