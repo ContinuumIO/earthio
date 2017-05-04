@@ -72,7 +72,7 @@ def load_hdf4_array(datafile, meta, band_specs=None):
         :Elmstore: Elmstore of teh hdf4 data
     '''
     from earthio import ElmStore
-    from elm.sample_util.metadata_selection import match_meta
+    from earthio.metadata_selection import match_meta
     logger.debug('load_hdf4_array: {}'.format(datafile))
     f = gdal.Open(datafile, GA_ReadOnly)
 

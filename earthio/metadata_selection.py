@@ -23,7 +23,6 @@ def _strip_key(k):
             k = k.lower().replace(delim,'')
     return k
 
-
 def match_meta(meta, band_spec):
     '''
     Parmeters:
