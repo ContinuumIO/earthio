@@ -4,7 +4,6 @@ import attr
 import pytest
 import numpy as np
 
-from elm.pipeline.tests.util import random_elm_store
 from earthio.tests.util import HDF4_FILES, NETCDF_FILES, TIF_FILES
 from earthio.util import *
 from earthio import *
