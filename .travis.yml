@@ -14,8 +14,6 @@ install:
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - conda config --set always_yes true
-
-  - conda create -n earth-env -c elm -c conda-forge python=${EARTH_VERS} elm
   - conda env update -n earth-env -f environment.yml
   - source activate earth-env
   - python setup.py develop
