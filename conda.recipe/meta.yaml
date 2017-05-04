@@ -34,6 +34,7 @@ requirements:
     - pytables
     - pytest
     - python
+    - python-magic
     - rasterio ==1.0a8
     - requests
     - scipy
