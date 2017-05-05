@@ -57,7 +57,7 @@ def load_tif_meta(filename):
             - **sub_dataset_name**: The filename
 
     '''
-    r = rio.open(filename)
+    r = rio.open(filename, driver='GTiff')
     if r.count != 1:
         raise ValueError('earthio.tif only reads tif files with 1 band (shape of [1, y, x]). Found {} bands'.format(r.count))
     meta = {'meta': r.meta}

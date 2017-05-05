@@ -5,13 +5,18 @@ ELM_EXAMPLE_DATA_PATH = os.environ.get('ELM_EXAMPLE_DATA_PATH')
 if ELM_EXAMPLE_DATA_PATH:
     ELM_HAS_EXAMPLES = True
     ELM_EXAMPLE_DATA_PATH = os.path.expanduser(ELM_EXAMPLE_DATA_PATH)
-    TIF_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH,
-                                       'tif',
-                                       'L8',
-                                       '015',
-                                       '033',
-                                       'LC80150332013207LGN00',
-                                       '*.TIF'))
+    args = ('landsat-pds',
+            'tif',
+            'L8',
+            '015',
+            '033',
+            'LC80150332013207LGN00',
+            '*.TIF',)
+    TIF_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH, *args))
+    if not TIF_FILES:
+        # handling system for saving example GeoTiffs
+        # ("landsat-pds" was not part of local file name)
+        TIF_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH, *args[1:]))
     HDF5_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH,
                                         'hdf5',
                                         '2016',

@@ -7,9 +7,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-S3_TIF_DIR = os.environ.get('S3_TIF_DIR')
-if not S3_TIF_DIR:
-    S3_TIF_DIR = os.path.join(os.path.expanduser('~'), 's3-landsat')
+S3_TIF_DIR = os.environ.get('ELM_EXAMPLE_DATA_PATH', 'tif')
 
 class SceneDownloader:
 
