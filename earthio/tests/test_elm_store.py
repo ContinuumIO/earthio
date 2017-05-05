@@ -158,7 +158,7 @@ def test_flatten_inverse_flatten():
     assert np.all(inv3.band_1.values == es.band_1.transpose('x', 'y').values)
 
 
-
+@pytest.mark.requires_elm # requires an install of elm for plot_3d to work
 def test_elm_store_plot_3d():
     import matplotlib.pyplot as plt
     def ret_99(*args, **kwargs):
