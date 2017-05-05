@@ -10,7 +10,7 @@ if ELM_EXAMPLE_DATA_PATH:
             'L8',
             '015',
             '033',
-            'LC80150332013207LGN00',
+            '*',
             '*.TIF',)
     TIF_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH, *args))
     if not TIF_FILES:
