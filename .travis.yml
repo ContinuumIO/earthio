@@ -13,4 +13,4 @@ install:
 
 script:
   - cd $BUILD_DIR
-  - py.test -m 'not slow' -v earthio/tests
+  - py.test -m 'not slow and not requires_elm' -v earthio/tests
