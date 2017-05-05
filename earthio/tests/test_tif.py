@@ -6,17 +6,17 @@ import attr
 import numpy as np
 import pytest
 
-from elm.readers.tif import (load_dir_of_tifs_meta,
+from earthio.tif import (load_dir_of_tifs_meta,
                              load_dir_of_tifs_array,
                              load_tif_meta,
                              ls_tif_files)
-from elm.readers.tests.util import (ELM_HAS_EXAMPLES,
+from earthio.tests.util import (ELM_HAS_EXAMPLES,
                                     ELM_EXAMPLE_DATA_PATH,
                                     TIF_FILES,
                                     assertions_on_metadata,
                                     assertions_on_band_metadata)
 
-from elm.readers.util import BandSpec
+from earthio.util import BandSpec
 
 TIF_DIR = os.path.dirname(TIF_FILES[0])
 band_specs = [

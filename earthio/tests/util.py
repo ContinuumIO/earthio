@@ -1,19 +1,21 @@
 
 import glob
 import os
-from elm.config import parse_env_vars
-
-ENV = parse_env_vars()
-ELM_HAS_EXAMPLES = ENV['ELM_HAS_EXAMPLES']
-if ELM_HAS_EXAMPLES:
-    ELM_EXAMPLE_DATA_PATH = ENV['ELM_EXAMPLE_DATA_PATH']
-    TIF_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH,
-                                       'tif',
-                                       'L8',
-                                       '015',
-                                       '033',
-                                       'LC80150332013207LGN00',
-                                       '*.TIF'))
+ELM_EXAMPLE_DATA_PATH = os.environ.get('ELM_EXAMPLE_DATA_PATH')
+if ELM_EXAMPLE_DATA_PATH:
+    ELM_HAS_EXAMPLES = True
+    ELM_EXAMPLE_DATA_PATH = os.path.expanduser(ELM_EXAMPLE_DATA_PATH)
+    args = ('landsat-pds',
+            'L8',
+            '015',
+            '033',
+            '*',
+            '*.TIF',)
+    TIF_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH, *args))
+    if not TIF_FILES:
+        # handling system for saving example GeoTiffs
+        # ("landsat-pds" was not part of local file name)
+        TIF_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH, *(('tif',)  + args[1:])))
     HDF5_FILES = glob.glob(os.path.join(ELM_EXAMPLE_DATA_PATH,
                                         'hdf5',
                                         '2016',
@@ -28,6 +30,7 @@ if ELM_HAS_EXAMPLES:
                                           'netcdf',
                                           '*.nc'))
 else:
+    ELM_HAS_EXAMPLES = False
     ELM_EXAMPLE_DATA_PATH = None
     TIF_FILES = []
     HDF5_FILES = []

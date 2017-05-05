@@ -6,12 +6,12 @@ import versioneer
 
 version = versioneer.get_version()
 cmdclass = versioneer.get_cmdclass()
-setup(name='elm',
+setup(name='earthio',
       version=version,
       cmdclass=cmdclass,
       description='Readers',
       include_package_data=True,
       install_requires=[],
-      packages=find_packages(),
+      packages=['earthio'],
       package_data={},
       entry_points={})

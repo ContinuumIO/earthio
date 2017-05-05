@@ -1,13 +1,13 @@
 '''
 --------------------
 
-``elm.readers.hdf4``
+``earthio.hdf4``
 ~~~~~~~~~~~~~~~~~~~~~
 
 Tools for reading HDF4 files.  Typically use the interface through
 
-    - :func:`elm.readers.load_array`
-    - :func:`elm.readers.load_meta`
+    - :func:`earthio.load_array`
+    - :func:`earthio.load_meta`
 
 '''
 
@@ -21,7 +21,7 @@ from gdalconst import GA_ReadOnly
 import numpy as np
 import xarray as xr
 
-from elm.readers.util import (geotransform_to_bounds,
+from earthio.util import (geotransform_to_bounds,
                               geotransform_to_coords,
                               row_col_to_xy,
                               raster_as_2d,
@@ -63,16 +63,16 @@ def load_hdf4_array(datafile, meta, band_specs=None):
 
     Parameters:
         :datafile: filename
-        :meta:     meta from elm.readers.load_hdf4_meta
-        :band_specs: list of elm.readers.BandSpec objects,
+        :meta:     meta from earthio.load_hdf4_meta
+        :band_specs: list of earthio.BandSpec objects,
                     defaulting to reading all subdatasets
                     as bands
 
     Returns:
         :Elmstore: Elmstore of teh hdf4 data
     '''
-    from elm.readers import ElmStore
-    from elm.sample_util.metadata_selection import match_meta
+    from earthio import ElmStore
+    from earthio.metadata_selection import match_meta
     logger.debug('load_hdf4_array: {}'.format(datafile))
     f = gdal.Open(datafile, GA_ReadOnly)
 

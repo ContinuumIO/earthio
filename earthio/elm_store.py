@@ -1,27 +1,20 @@
 '''
-
 -------------------------
-
-``elm.readers.elm_store``
+``earthio.elm_store``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``elm.readers.ElmStore`` inherits from xarray.Dataset to provide named
+``earthio.ElmStore`` inherits from xarray.Dataset to provide named
 "bands" or Datasets for satellite data.
-
 When an ElmStore is created with a "geo_transform" key/value
-in its attrs initialization argument, then an elm.readers.Canvas
+in its attrs initialization argument, then an earthio.Canvas
 object is constructed from the geo transform.  The Canvas attribute
 is on each band, or xarray.DataArray, in the ElmStore because bands
 may have different coordinates.
-
 The Canvas object is used in elm for forcing different bands, DataArrays,
 onto the same coordinate system, for example::
-
     from sklearn.cluster import KMeans
-    from elm.readers import *
+    from earthio import *
     from elm.pipeline import steps, Pipeline
     from elm.pipeline.tests.util import random_elm_store
-
     X = random_elm_store()
     selector = steps.SelectCanvas('band_1')
     flattener = steps.Flatten()
@@ -32,11 +25,13 @@ onto the same coordinate system, for example::
 from collections import OrderedDict
 import logging
 
+import dask.array as da
 import xarray as xr
 
-from elm.readers.util import (_extract_valid_xy, Canvas,
-                              geotransform_to_bounds,
-                              dummy_canvas)
+from earthio.util import (_extract_valid_xy,
+                          Canvas,
+                          geotransform_to_bounds,
+                          dummy_canvas)
 
 
 __all__ = ['ElmStore', ]
@@ -49,7 +44,6 @@ class ElmStore(xr.Dataset):
     '''ElmStore, an xarray.Dataset with a canvas attribute
     for rasters as bands and transformations of data for machine
     learning
-
     Parameters inhertited from xarray.Dataset:
         :data_vars: dict-like, optional
             A mapping from variable names to :py:class:`~xarray.DataArray`
@@ -72,19 +66,16 @@ class ElmStore(xr.Dataset):
         :compat: {'broadcast_equals', 'equals', 'identical'}, optional
             String indicating how to compare variables of the same name for
             potential conflicts:
-
             - 'broadcast_equals': all values must be equal when variables are
               broadcast against each other to ensure common dimensions.
             - 'equals': all values and dimensions must be the same.
             - 'identical': all values, dimensions and attributes must be the
               same.
-
     Parameters unique to ElmStore are used internally in elm in
-    :mod:`elm.readers.reshape`, including :func:`lost_axis` and :func:`add_canvas`.  See also
-    :func:`elm.readers.reshape.inverse_flatten`
-
+    :mod:`earthio.reshape`, including :func:`lost_axis` and :func:`add_canvas`.  See also
+    :func:`earthio.reshape.inverse_flatten`
     ElmStore attrs:
-        :canvas: elm.readers.Canvas object for elm.pipeline.steps.SelectCanvas
+        :canvas: earthio.Canvas object for elm.pipeline.steps.SelectCanvas
         :band_order: list of the band names in the order they will appear as columns
                     when steps.Flatten() is called to flatten raster DataArrays
                     to a single "flat" DataArray
@@ -193,7 +184,6 @@ class ElmStore(xr.Dataset):
     def plot_3d(self, bands, title='', scale=None,
                 axis_labels=True, **imshow_kwargs):
         '''Plot a true or pseudo color image of 3 bands
-
         Parameters:
             :X: ElmStore or xarray.Dataset
             :bands: list of 3 band names that are in X
@@ -201,7 +191,6 @@ class ElmStore(xr.Dataset):
             :scale: divide all values by this (e.g. 2** 16 for uint16)
             :axis_labels: True / False show axis_labels
             :\*\*imshow_kwargs: passed to imshow
-
         Returns:
             :(arr, fig): where arr is the 3-D numpy array and fig is the figure
         '''
@@ -213,3 +202,14 @@ class ElmStore(xr.Dataset):
 
     def __repr__(self):
         return "ElmStore:\n" + super().__repr__().replace('xarray', 'elm')
+
+
+OK_X_DATA_TYPES = (ElmStore, xr.Dataset, da.Array)
+def check_X_data_type(X):
+    if not isinstance(X, OK_X_DATA_TYPES):
+        raise ValueError('Expected the return value of fitting function '
+                         'to be one of the following: '
+                         '{} but found it was an {}'.format(OK_X_DATA_TYPES, type(X)))
+
+
+__all__ = ['ElmStore', 'check_X_data_type',]

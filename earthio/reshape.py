@@ -1,7 +1,7 @@
 '''
 -----------------------
 
-``elm.readers.reshape``
+``earthio.reshape``
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 '''
@@ -20,8 +20,8 @@ import numpy as np
 import scipy.interpolate as spi
 import xarray as xr
 
-from elm.readers import ElmStore, Canvas
-from elm.readers.util import (canvas_to_coords,
+from earthio import ElmStore, Canvas
+from earthio.util import (canvas_to_coords,
                               VALID_X_NAMES,
                               VALID_Y_NAMES,
                               get_shared_canvas)
@@ -101,7 +101,7 @@ def select_canvas(es, new_canvas):
 
     Parameters:
         :es: ElmStore
-        :new_canvas: an elm.readers.Canvas object
+        :new_canvas: an earthio.Canvas object
 
     Returns:
         :es: ElmStore where every band (DataArray) has the same

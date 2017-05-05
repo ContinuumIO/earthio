@@ -13,7 +13,7 @@ import logging
 import pandas as pd
 import re
 
-from elm.readers.util import BandSpec
+from earthio.util import BandSpec
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,6 @@ def _strip_key(k):
         for delim in ('.', '_', '-', ' '):
             k = k.lower().replace(delim,'')
     return k
-
 
 def match_meta(meta, band_spec):
     '''
@@ -35,7 +34,7 @@ def match_meta(meta, band_spec):
 
     '''
     if not isinstance(band_spec, BandSpec):
-        raise ValueError('band_spec must be elm.readers.BandSpec object')
+        raise ValueError('band_spec must be earthio.BandSpec object')
 
     for mkey in meta:
         key_re_flags = [getattr(re, att)

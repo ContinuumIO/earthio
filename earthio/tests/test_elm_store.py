@@ -4,12 +4,11 @@ import attr
 import pytest
 import numpy as np
 
-from elm.pipeline.tests.util import random_elm_store
-from elm.readers.tests.util import HDF4_FILES, NETCDF_FILES, TIF_FILES
-from elm.readers.util import *
-from elm.readers import *
-from elm.readers.tests.test_hdf4 import band_specs as hdf4_band_specs
-from elm.readers.tests.test_tif import band_specs as tif_band_specs
+from earthio.tests.util import HDF4_FILES, NETCDF_FILES, TIF_FILES
+from earthio.util import *
+from earthio import *
+from earthio.tests.test_hdf4 import band_specs as hdf4_band_specs
+from earthio.tests.test_tif import band_specs as tif_band_specs
 
 
 readers = {'hdf': [load_hdf4_meta, load_hdf4_array],
@@ -159,7 +158,7 @@ def test_flatten_inverse_flatten():
     assert np.all(inv3.band_1.values == es.band_1.transpose('x', 'y').values)
 
 
-
+@pytest.mark.requires_elm # requires an install of elm for plot_3d to work
 def test_elm_store_plot_3d():
     import matplotlib.pyplot as plt
     def ret_99(*args, **kwargs):

@@ -1,16 +1,48 @@
 package:
-  name: elm-readers
+  name: earthio
   version: {{ environ['GIT_DESCRIBE_TAG'] }}
 
 build:
-  number: 0
-  pin_depends: record
+  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0)|int }}
 
 requirements:
   build:
     - python
     - setuptools
-  run: []
+
+  run:
+    - attrs
+    - bokeh
+    - cartopy
+    - colorcet
+    - dask
+    - datashader
+    - dill
+    - distributed
+    - geoviews
+    - holoviews
+    - iris
+    - jupyter
+    - krb5
+    - matplotlib
+    - networkx
+    - numba
+    - numpy
+    - pandas
+    - paramnb
+    - pyproj
+    - pytables
+    - pytest
+    - python
+    - python-magic
+    - rasterio ==1.0a8
+    - requests
+    - scipy
+    - shapely
+    - statsmodels
+    - tblib
+    - xarray
+    - yaml
 
 about:
   home: http://github.com/ContinuumIO/elm
@@ -19,8 +51,8 @@ about:
 extra:
   maintainers:
     - Peter Steinberg - Continuum Analytics - psteinberg [at] continuum [dot] io
+    - Greg Brener - Continuum Analytics - gbrener [at] continuum [dot] io
 
 test:
   imports:
-    - elm.readers
-
+    - earthio
