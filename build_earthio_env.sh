@@ -21,6 +21,9 @@ mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python "${BUILD_
 # downloader for Tiffs is okay
 rm -rf tif
 python -c 'from earthio.s3_landsat_util import SceneDownloader;s = SceneDownloader();row = s.lowest_cloud_cover_image();s.download_all_bands(row.download_url.iloc[0])'
+ls -lRth ./
+pwd
+echo ELM_EXAMPLE_DATA_PATH is $ELM_EXAMPLE_DATA_PATH
 ## End of section that needs to be removed soon
 cd $BUILD_DIR
 ls -lRth $ELM_EXAMPLE_DATA_PATH
