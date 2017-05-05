@@ -91,11 +91,11 @@ def array_template(r, meta, **reader_kwargs):
         if 'height' in reader_kwargs:
             height = reader_kwargs['height']
         else:
-            height = np.diff(reader_kwargs['window'][0])
+            height = np.diff(reader_kwargs['window'][0])[0]
         if 'width' in reader_kwargs:
             width = reader_kwargs['width']
         else:
-            width = np.diff(reader_kwargs['window'][0])
+            width = np.diff(reader_kwargs['window'][0])[0]
     return np.empty((1, height, width), dtype=dtype)
 
 
