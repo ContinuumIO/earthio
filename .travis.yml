@@ -4,9 +4,9 @@ python:
   - "3.5"
 
 env:
-  - EARTH_VERS=2.7
-  - EARTH_VERS=3.5
-  - EARTH_VERS=3.6
+  - PYTHON_TEST_VERSION=2.7
+  - PYTHON_TEST_VERSION=3.5
+  - PYTHON_TEST_VERSION=3.6
 
 install:
   - MAKE_MINICONDA=1 . build_earthio_env.sh
