@@ -9,6 +9,7 @@ build_earthio_env(){
         export PATH="$HOME/miniconda/bin:$PATH" || return 1;
     fi
     source deactivate  || return 1;
+    conda install --name root conda conda-build;
     conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null;
     conda config --set always_yes true  || return 1;
     conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml  || return 1;
