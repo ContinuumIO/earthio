@@ -10,8 +10,11 @@ env:
 
 install:
   - export EARTHIO_TEST_ENV=earth-env-test
+  - export ELM_EXAMPLE_DATA_PATH=/tmp/elm-data
+  - mkdir -p $ELM_EXAMPLE_DATA_PATH; rm -rf $ELM_EXAMPLE_DATA_PATH/*
   - MAKE_MINICONDA=1 . build_earthio_env.sh
 
 script:
   - cd $EARTHIO_BUILD_DIR
   - py.test -m 'not slow and not requires_elm' -v earthio/tests
+  - rm -rf $ELM_EXAMPLE_DATA_PATH/*
