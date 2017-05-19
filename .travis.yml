@@ -9,9 +9,12 @@ env:
   - PYTHON_TEST_VERSION=3.6
 
 install:
+  # Name of the environment for testing
   - export EARTHIO_TEST_ENV=earth-env-test
+  # Path to example data downloaded.  Dont put it in earthio dir
   - export ELM_EXAMPLE_DATA_PATH=/tmp/elm-data
   - mkdir -p $ELM_EXAMPLE_DATA_PATH; rm -rf $ELM_EXAMPLE_DATA_PATH/*
+  # Build the env
   - MAKE_MINICONDA=1 . build_earthio_env.sh
 
 script:
