@@ -13,5 +13,5 @@ install:
   - MAKE_MINICONDA=1 . build_earthio_env.sh
 
 script:
-  - cd $BUILD_DIR
+  - cd $EARTHIO_BUILD_DIR
   - py.test -m 'not slow and not requires_elm' -v earthio/tests
