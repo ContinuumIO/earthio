@@ -1,6 +1,6 @@
 
 build_earthio_env(){
-    conda config --set always_yes true;
+
     if [ "$PYTHON_TEST_VERSION" = "" ];then
         echo Env variable PYTHON_TEST_VERSION is not defined. Set it to 2.7, 3.5 or 3.6 - FAIL ;
         return 1;
@@ -13,6 +13,7 @@ build_earthio_env(){
         bash miniconda.sh -b -p $HOME/miniconda || return 1;
         export PATH="$HOME/miniconda/bin:$PATH" || return 1;
     fi
+    conda config --set always_yes true;
     source deactivate;
     conda install --name root conda conda-build;
     conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null;
