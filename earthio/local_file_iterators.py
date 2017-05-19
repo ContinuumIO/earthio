@@ -16,7 +16,6 @@ def iter_dirs_of_dirs(**kwargs):
                 yield root
 
 
-
 def iter_files_recursively(**kwargs):
     file_pattern = kwargs.get('file_pattern') or None
     top_dir = kwargs['top_dir']
@@ -29,5 +28,6 @@ def iter_files_recursively(**kwargs):
                 files = (f for f in files if re.search(file_pattern, f))
             else:
                 files = iter(files)
-            yield from (os.path.join(root, f) for f in files)
+            for f in (os.path.join(root, f) for f in files):
+                yield f
 
