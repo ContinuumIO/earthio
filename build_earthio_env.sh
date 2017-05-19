@@ -3,12 +3,14 @@ export EARTHIO_BUILD_DIR=`pwd -P`
 if [ "$EARTHIO_CHANNEL_STR" = "" ];then
     export EARTHIO_CHANNEL_STR=" -c ioam -c conda-forge -c scitools/label/dev ";
 fi
+if [ "$EARTHIO_TEST_ENV" = "" ];then
+    export EARTHIO_TEST_ENV=earth-env-test;
+fi
 build_earthio_env(){
     if [ "$PYTHON_TEST_VERSION" = "" ];then
         echo Env variable PYTHON_TEST_VERSION is not defined. Set it to 2.7, 3.5 or 3.6 - FAIL ;
         return 1;
     fi
-
     if [ "$MAKE_MINICONDA" = "" ];then
         echo
     else
