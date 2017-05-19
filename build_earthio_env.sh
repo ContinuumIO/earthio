@@ -17,16 +17,18 @@ build_earthio_env(){
     source deactivate;
     conda install --name root conda conda-build;
     conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null;
-    source activate ${EARTHIO_TEST_ENV}  || return 1;
     if [ "$EARTHIO_INSTALL_METHOD" = "" ];then
         export EARTHIO_INSTALL_METHOD="conda";
     fi
     if [ "$EARTHIO_INSTALL_METHOD" = "git" ];then
         conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml  || return 1;
+        source activate ${EARTHIO_TEST_ENV}  || return 1;
         python setup.py develop || return 1;
+
     else
         conda build -c conda-forge --python $PYTHON_TEST_VERSION conda.recipe || return 1;
         conda create --use-local --name $EARTHIO_TEST_ENV python=$PYTHON_TEST_VERSION earthio || return 1;
+        source activate ${EARTHIO_TEST_ENV}  || return 1;
     fi
     export ELM_EXAMPLE_DATA_PATH=$(pwd -P)/elm-data
     conda install -c defaults -c conda-forge requests pbzip2 python-magic six  || return 1; # for download_test_data.py
