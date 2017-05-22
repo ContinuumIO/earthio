@@ -14,7 +14,7 @@ install:
   - export EARTHIO_TEST_ENV=earth-env-test
   # Path to example data downloaded.  Dont put it in earthio dir
   - export ELM_EXAMPLE_DATA_PATH=/tmp/elm-data
-  - if [ "$IGNORE_ELM_DATA_DOWNLOAD" = "" ]; then mkdir -p $ELM_EXAMPLE_DATA_PATH; rm -rf $ELM_EXAMPLE_DATA_PATH/*;fi
+  - mkdir -p $ELM_EXAMPLE_DATA_PATH; rm -rf $ELM_EXAMPLE_DATA_PATH/*
   # Build the env
   - MAKE_MINICONDA=1 . build_earthio_env.sh
 
