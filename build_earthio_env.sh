@@ -38,7 +38,9 @@ build_earthio_env(){
         export ELM_EXAMPLE_DATA_PATH="${EARTHIO_BUILD_DIR}/../elm-data";
     fi
     conda install -c defaults -c conda-forge requests pbzip2 python-magic six  || return 1; # for download_test_data.py
-    mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python "${EARTHIO_BUILD_DIR}/scripts/download_test_data.py" || return 1;
+    if [ "$IGNORE_ELM_DATA_DOWNLOAD" = "" ];then
+        mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python "${EARTHIO_BUILD_DIR}/scripts/download_test_data.py" || return 1;
+    fi
     cd $EARTHIO_BUILD_DIR || return 1;
 }
 build_earthio_env && source activate ${EARTHIO_TEST_ENV} && echo OK
