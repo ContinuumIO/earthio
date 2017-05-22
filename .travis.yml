@@ -1,16 +1,24 @@
+
 language: python
 
 python:
   - "3.5"
 
 env:
-  - EARTH_VERS=2.7
-  - EARTH_VERS=3.5
-  - EARTH_VERS=3.6
+  - PYTHON_TEST_VERSION=2.7
+  - PYTHON_TEST_VERSION=3.5
+  - PYTHON_TEST_VERSION=3.6
 
 install:
+  # Name of the environment for testing
+  - export EARTHIO_TEST_ENV=earth-env-test
+  # Path to example data downloaded.  Dont put it in earthio dir
+  - export ELM_EXAMPLE_DATA_PATH=/tmp/elm-data
+  - mkdir -p $ELM_EXAMPLE_DATA_PATH; rm -rf $ELM_EXAMPLE_DATA_PATH/*
+  # Build the env
   - MAKE_MINICONDA=1 . build_earthio_env.sh
 
 script:
-  - cd $BUILD_DIR
+  - cd $EARTHIO_BUILD_DIR
   - py.test -m 'not slow and not requires_elm' -v earthio/tests
+  - rm -rf $ELM_EXAMPLE_DATA_PATH/*
