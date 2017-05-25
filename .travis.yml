@@ -27,7 +27,7 @@ before_install:
   - mkdir -p $ELM_EXAMPLE_DATA_PATH; rm -rf $ELM_EXAMPLE_DATA_PATH/*
 
 install:
-  - MAKE_MINICONDA=1 . build_elm_env.sh
+  - MAKE_MINICONDA=1 . build_earthio_env.sh
 
 script:
   - cd $EARTHIO_BUILD_DIR
