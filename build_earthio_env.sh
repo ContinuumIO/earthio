@@ -7,8 +7,8 @@ if [ "$EARTHIO_TEST_ENV" = "" ];then
     export EARTHIO_TEST_ENV=earth-env-test;
 fi
 build_earthio_env(){
-    if [ "$PYTHON_TEST_VERSION" = "" ];then
-        echo Env variable PYTHON_TEST_VERSION is not defined. Set it to 2.7, 3.5 or 3.6 - FAIL ;
+    if [ "$PYTHON" = "" ];then
+        echo Env variable PYTHON is not defined. Set it to 2.7, 3.5 or 3.6 - FAIL ;
         return 1;
     fi
     if [ "$MAKE_MINICONDA" = "" ];then
@@ -30,8 +30,8 @@ build_earthio_env(){
         source activate ${EARTHIO_TEST_ENV} || return 1;
         python setup.py develop || return 1;
     else
-        conda build $EARTHIO_CHANNEL_STR --python $PYTHON_TEST_VERSION conda.recipe || return 1;
-        conda create --use-local --name $EARTHIO_TEST_ENV $EARTHIO_CHANNEL_STR python=$PYTHON_TEST_VERSION earthio || return 1;
+        conda build $EARTHIO_CHANNEL_STR --python $PYTHON conda.recipe || return 1;
+        conda create --use-local --name $EARTHIO_TEST_ENV $EARTHIO_CHANNEL_STR python=$PYTHON earthio || return 1;
         source activate ${EARTHIO_TEST_ENV}  || return 1;
     fi
     if [ "$ELM_EXAMPLE_DATA_PATH" = "" ];then
