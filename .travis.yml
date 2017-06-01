@@ -2,9 +2,6 @@ language: python
 
 dist: trusty
 
-# Increase memory
-sudo: required
-
 env:
   global:
     - EARTHIO_TEST_ENV=earth-test-env
