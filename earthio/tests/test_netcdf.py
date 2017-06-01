@@ -9,7 +9,6 @@ from earthio.tests.util import (ELM_HAS_EXAMPLES,
                                     NETCDF_FILES,
                                     assertions_on_metadata)
 from earthio.util import BandSpec
-NETCDF_DIR = os.path.dirname(NETCDF_FILES[0])
 
 variables_dict = dict(HQobservationTime='HQobservationTime')
 variables_list = ['HQobservationTime']

@@ -18,7 +18,6 @@ from earthio.tests.util import (ELM_HAS_EXAMPLES,
 
 from earthio.util import BandSpec
 
-HDF5_DIR = os.path.dirname(HDF5_FILES[0])
 
 def get_band_specs(filename):
     if os.path.basename(filename).startswith('3B-MO'):

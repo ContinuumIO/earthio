@@ -18,7 +18,6 @@ from earthio.tests.util import (ELM_HAS_EXAMPLES,
 
 from earthio.util import BandSpec
 
-TIF_DIR = os.path.dirname(TIF_FILES[0])
 band_specs = [
     BandSpec('name', '_B1.TIF', 'band_1'),
     BandSpec('name', '_B2.TIF', 'band_2'),
@@ -34,6 +33,7 @@ band_specs = [
 @pytest.mark.skipif(not ELM_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_meta():
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
     for tif in TIF_FILES:
         raster, meta = load_tif_meta(tif)
         assert hasattr(raster, 'read')
@@ -52,6 +52,7 @@ def test_read_meta():
 @pytest.mark.skipif(not ELM_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_array():
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
     meta = load_dir_of_tifs_meta(TIF_DIR, band_specs)
     es = load_dir_of_tifs_array(TIF_DIR, meta, band_specs)
     for var in es.data_vars:
@@ -72,6 +73,7 @@ def test_read_array():
 @pytest.mark.skipif(not ELM_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_reader_kwargs():
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
     band_specs_kwargs = []
     for b in band_specs:
         b = attr.asdict(b)
