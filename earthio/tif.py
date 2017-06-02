@@ -10,6 +10,8 @@ Tools for reading GeoTiff files.  Typically use the interface through
     - :func:`earthio.`load_meta`
 
 '''
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import OrderedDict
 import copy
 import gc
