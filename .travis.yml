@@ -13,14 +13,6 @@ env:
     - PYTHON=3.5 NUMPY=1.11
     - PYTHON=2.7 NUMPY=1.9
 
-matrix:
-  # Support for these versions of Python is still a work-in-progress
-  allow_failures:
-    - env: PYTHON=2.7 NUMPY=1.9
-
-  # The build result is determined as soon as the required builds pass/fail
-  fast_finish: true
-
 before_install:
   - mkdir -p $ELM_EXAMPLE_DATA_PATH
   - rm -rf $ELM_EXAMPLE_DATA_PATH/*
