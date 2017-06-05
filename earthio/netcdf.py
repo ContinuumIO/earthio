@@ -10,7 +10,8 @@ Tools for reading NetCDF files.  Typically use the interface through
     - :func:`earthio.load_meta`
 
 '''
-from __future__ import print_function
+
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import OrderedDict
 import logging
@@ -24,6 +25,7 @@ from earthio.util import (geotransform_to_bounds,
                               take_geo_transform_from_meta)
 from earthio import ElmStore
 from earthio.metadata_selection import match_meta
+from six import string_types
 
 __all__ = ['load_netcdf_meta', 'load_netcdf_array']
 
@@ -31,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 def _nc_str_to_dict(nc_str):
-    if isinstance(nc_str, str):
+    if isinstance(nc_str, string_types):
         str_list = [g.split('=') for g in nc_str.split(';\n')]
         d = dict([g for g in str_list if len(g) == 2])
         if d:

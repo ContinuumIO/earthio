@@ -12,6 +12,8 @@ Can be parsed with:
     landsat_metadata(filename)
 '''
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from datetime import datetime
 
 class landsat_metadata:

@@ -9,6 +9,7 @@ Usage:
     ./download_test_data.py --files hdf4.tar.bz2 hdf5.tar.bz2 netcdf.tar.bz2 tif.tar.bz2
 """
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
 import os
