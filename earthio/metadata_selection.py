@@ -17,11 +17,12 @@ import pandas as pd
 import re
 
 from earthio.util import BandSpec
+from six import string_types
 
 logger = logging.getLogger(__name__)
 
 def _strip_key(k):
-    if isinstance(k, str):
+    if isinstance(k, string_types):
         for delim in ('.', '_', '-', ' '):
             k = k.lower().replace(delim,'')
     return k

@@ -37,5 +37,6 @@ dependencies:
   - tblib
   - xarray
   - yaml
+  - six
   - pip:
       - cachey

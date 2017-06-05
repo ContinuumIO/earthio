@@ -32,6 +32,8 @@ from earthio.util import (geotransform_to_coords,
                               BandSpec)
 
 from earthio import ElmStore
+from six import string_types
+
 logger = logging.getLogger(__name__)
 
 
@@ -118,7 +120,7 @@ def load_dir_of_tifs_meta(dir_of_tiffs, band_specs=None, **meta):
 
         if band_specs:
             for idx, band_spec in enumerate(band_specs):
-                if (isinstance(band_spec, BandSpec) and match_meta(band_meta, band_spec)) or (isinstance(band_spec, str) and band_spec in tif):
+                if (isinstance(band_spec, BandSpec) and match_meta(band_meta, band_spec)) or (isinstance(band_spec, string_types) and band_spec in tif):
                     band_order_info.append((idx, tif, band_spec, band_meta))
                     break
 
@@ -181,7 +183,7 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, band_specs=None):
     attrs['band_order'] = []
     for (idx, filename, band_spec), band_meta in zip(band_order_info, meta['band_meta']):
         band_name = getattr(band_spec, 'name', band_spec)
-        if not isinstance(band_spec, str):
+        if not isinstance(band_spec, string_types):
             reader_kwargs = {k: getattr(band_spec, k)
                              for k in READ_ARRAY_KWARGS
                              if getattr(band_spec, k)}

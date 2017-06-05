@@ -21,6 +21,7 @@ import scipy.interpolate as spi
 
 import attr
 from attr.validators import instance_of
+from six import string_types
 
 __all__ = ['Canvas', 'xy_to_row_col', 'row_col_to_xy',
            'geotransform_to_coords', 'geotransform_to_bounds',
@@ -54,7 +55,7 @@ def import_callable(func_or_not, required=True, context=''):
     if callable(func_or_not):
         return func_or_not
     context = context + ' -  e' if context else 'E'
-    if func_or_not and (not isinstance(func_or_not, str) or func_or_not.count(':') != 1):
+    if func_or_not and (not isinstance(func_or_not, string_types) or func_or_not.count(':') != 1):
         raise ValueError('{}xpected {} to be an module:callable '
                          'if given'.format(context, repr(func_or_not)))
     if not func_or_not and not required:
@@ -323,7 +324,7 @@ def _case_insensitive_lookup(dic, lookup_list, has_seen):
         match = re.search(pattern, k, re.IGNORECASE)
         val = dic[k]
         if match:
-            if isinstance(val, str):
+            if isinstance(val, string_types):
                 if ',' in val:
                     val = val.split(',')
                 else:
