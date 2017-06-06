@@ -21,7 +21,7 @@ import scipy.interpolate as spi
 
 import attr
 from attr.validators import instance_of
-from six import string_types
+from six import string_types, PY2
 
 __all__ = ['Canvas', 'xy_to_row_col', 'row_col_to_xy',
            'geotransform_to_coords', 'geotransform_to_bounds',
@@ -65,6 +65,9 @@ def import_callable(func_or_not, required=True, context=''):
                          'got {}'.format(context, repr(func_or_not)))
     module, func = func_or_not.split(':')
     try:
+        # The import statement in Python 2 expects (decoded) str types instead of unicode strings
+        if PY2 and isinstance(func, unicode):
+            func = func.encode('utf-8')
         mod = __import__(module, globals(), locals(), [func], 0)
     except Exception as e:
         tb = traceback.format_exc()
