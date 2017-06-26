@@ -33,6 +33,10 @@ SPATIAL_KEYS = ('height', 'width', 'geo_transform', 'bounds')
 READ_ARRAY_KWARGS = ('window', 'buf_xsize', 'buf_ysize',)
 
 
+def mkdir_p(d):
+    if not os.path.exists(d):
+        os.mkdir(d)
+
 def import_callable(func_or_not, required=True, context=''):
     '''Given a string spec of a callable like "numpy:mean",
     import the module and callable, returning the callable
@@ -48,7 +52,7 @@ def import_callable(func_or_not, required=True, context=''):
     '''
     # TODO make sure this import_callable func is
     # not defined in two packages - this is a
-    # copy currently from what was elm.config
+    # copy currently from what was earthio.config
     if callable(func_or_not):
         return func_or_not
     context = context + ' -  e' if context else 'E'
@@ -117,6 +121,7 @@ def dummy_canvas(buf_xsize, buf_ysize, dims, **kwargs):
     dummy['bounds'] = geotransform_to_bounds(dummy['buf_xsize'],
                                              dummy['buf_ysize'],
                                              dummy['geo_transform'])
+    raise ValueError(repr((buf_xsize, buf_ysize, dims, kwargs)))
     return Canvas(**dummy)
 
 def xy_to_row_col(x, y, geo_transform):

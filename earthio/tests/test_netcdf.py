@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 
 from earthio.netcdf import load_netcdf_meta, load_netcdf_array
-from earthio.tests.util import (ELM_HAS_EXAMPLES,
+from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                     NETCDF_FILES,
                                     assertions_on_metadata)
 from earthio.util import BandSpec
@@ -15,7 +15,7 @@ variables_dict = dict(HQobservationTime='HQobservationTime')
 variables_list = ['HQobservationTime']
 
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                     reason='elm-data repo has not been cloned')
 def test_read_meta():
     for nc_file in NETCDF_FILES:
@@ -37,7 +37,7 @@ def _validate_array_test_result(ds):
     assert ds.y.size == 1800
     assert ds.x.size == 3600
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                    reason='elm-data repo has not been cloned')
 def test_read_using_dict_of_variables():
     for nc_file in NETCDF_FILES:
@@ -46,7 +46,7 @@ def test_read_using_dict_of_variables():
         _validate_array_test_result(ds)
 
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                    reason='elm-data repo has not been cloned')
 def test_read_using_list_of_variables():
     for nc_file in NETCDF_FILES:

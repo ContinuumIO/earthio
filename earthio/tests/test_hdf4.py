@@ -10,8 +10,8 @@ from earthio.hdf4 import (load_hdf4_meta,
 
 from earthio.util import BandSpec
 
-from earthio.tests.util import (ELM_HAS_EXAMPLES,
-                                    ELM_EXAMPLE_DATA_PATH,
+from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
+                                    EARTHIO_EXAMPLE_DATA_PATH,
                                     HDF4_FILES,
                                     assertions_on_metadata,
                                     assertions_on_band_metadata)
@@ -31,7 +31,7 @@ band_specs = [
 ]
 
 @pytest.mark.parametrize('hdf', HDF4_FILES or [])
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_meta(hdf):
     meta = load_hdf4_meta(hdf)
@@ -41,7 +41,7 @@ def test_read_meta(hdf):
         assert 'GranuleBeginningDateTime' in band_meta
 
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                    reason='elm-data repo has not been cloned')
 @pytest.mark.parametrize('hdf', HDF4_FILES or [])
 def test_read_array(hdf):
@@ -67,7 +67,7 @@ def test_read_array(hdf):
     es2 = load_hdf4_array(hdf, meta, band_specs=None)
     assert len(es2.data_vars) > len(es.data_vars)
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_reader_kwargs():
     band_specs_kwargs = []

@@ -93,7 +93,8 @@ class ElmStore(xr.Dataset):
             self._add_band_order()
             self._add_es_meta()
         else:
-            if not 'flat' in self.data_vars:
+            if not any(special in self.data_vars
+                       for special in ('flat','predict',)):
                 self._add_band_order()
                 self._add_dummy_canvas(**es_kwargs)
 

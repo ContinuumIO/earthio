@@ -260,6 +260,7 @@ def inverse_flatten(flat, add_canvas=False, **attrs):
     '''
     flat = filled_flattened(flat)
     attrs2 = copy.deepcopy(flat.attrs)
+    attrs2.update(copy.deepcopy(flat.flat.attrs))
     attrs2.update(copy.deepcopy(attrs))
     attrs = attrs2
     band_list = zip(flat.flat.band_order, flat.old_dims)

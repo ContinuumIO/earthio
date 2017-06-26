@@ -10,8 +10,8 @@ from earthio.tif import (load_dir_of_tifs_meta,
                              load_dir_of_tifs_array,
                              load_tif_meta,
                              ls_tif_files)
-from earthio.tests.util import (ELM_HAS_EXAMPLES,
-                                    ELM_EXAMPLE_DATA_PATH,
+from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
+                                    EARTHIO_EXAMPLE_DATA_PATH,
                                     TIF_FILES,
                                     assertions_on_metadata,
                                     assertions_on_band_metadata)
@@ -31,7 +31,7 @@ band_specs = [
     BandSpec('name', '_B10.TIF', 'band_10'),
     BandSpec('name', '_B11.TIF', 'band_11'),
 ]
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_meta():
     for tif in TIF_FILES:
@@ -49,7 +49,7 @@ def test_read_meta():
         assert heights_names[-1][-1].endswith('_B8.TIF')
 
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_array():
     meta = load_dir_of_tifs_meta(TIF_DIR, band_specs)
@@ -69,7 +69,7 @@ def test_read_array():
         assertions_on_band_metadata(sample.attrs)
 
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_reader_kwargs():
     band_specs_kwargs = []

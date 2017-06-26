@@ -34,12 +34,12 @@ build_earthio_env(){
         conda create --use-local --name $EARTHIO_TEST_ENV $EARTHIO_CHANNEL_STR python=$PYTHON_TEST_VERSION earthio || return 1;
         source activate ${EARTHIO_TEST_ENV}  || return 1;
     fi
-    if [ "$ELM_EXAMPLE_DATA_PATH" = "" ];then
-        export ELM_EXAMPLE_DATA_PATH="${EARTHIO_BUILD_DIR}/../elm-data";
+    if [ "$EARTHIO_EXAMPLE_DATA_PATH" = "" ];then
+        export EARTHIO_EXAMPLE_DATA_PATH="${EARTHIO_BUILD_DIR}/../elm-data";
     fi
     conda install -c defaults -c conda-forge requests pbzip2 python-magic six  || return 1; # for download_test_data.py
-    if [ "$IGNORE_ELM_DATA_DOWNLOAD" = "" ];then
-        mkdir -p $ELM_EXAMPLE_DATA_PATH && cd $ELM_EXAMPLE_DATA_PATH && python "${EARTHIO_BUILD_DIR}/scripts/download_test_data.py" || return 1;
+    if [ "$IGNORE_EARTHIO_DATA_DOWNLOAD" = "" ];then
+        mkdir -p $EARTHIO_EXAMPLE_DATA_PATH && cd $EARTHIO_EXAMPLE_DATA_PATH && python "${EARTHIO_BUILD_DIR}/scripts/download_test_data.py" || return 1;
     fi
     cd $EARTHIO_BUILD_DIR || return 1;
 }
