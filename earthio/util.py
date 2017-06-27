@@ -121,7 +121,10 @@ def dummy_canvas(buf_xsize, buf_ysize, dims, **kwargs):
     dummy['bounds'] = geotransform_to_bounds(dummy['buf_xsize'],
                                              dummy['buf_ysize'],
                                              dummy['geo_transform'])
-    raise ValueError(repr((buf_xsize, buf_ysize, dims, kwargs)))
+    # TODO review all places where this function
+    # is called by uncommenting the following
+    # and noting test failures
+    #raise ValueError(repr((buf_xsize, buf_ysize, dims, kwargs)))
     return Canvas(**dummy)
 
 def xy_to_row_col(x, y, geo_transform):
