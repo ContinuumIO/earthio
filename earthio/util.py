@@ -5,6 +5,8 @@
 ~~~~~~~~~~~~~~~~~~~
 '''
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import namedtuple, OrderedDict, Sequence
 from itertools import product
 import logging
@@ -19,6 +21,7 @@ import scipy.interpolate as spi
 
 import attr
 from attr.validators import instance_of
+from six import string_types, PY2
 
 __all__ = ['Canvas', 'xy_to_row_col', 'row_col_to_xy',
            'geotransform_to_coords', 'geotransform_to_bounds',
@@ -57,16 +60,19 @@ def import_callable(func_or_not, required=True, context=''):
     if callable(func_or_not):
         return func_or_not
     context = context + ' -  e' if context else 'E'
-    if func_or_not and (not isinstance(func_or_not, str) or func_or_not.count(':') != 1):
+    if func_or_not and (not isinstance(func_or_not, string_types) or func_or_not.count(':') != 1):
         raise ValueError('{}xpected {} to be an module:callable '
-                         'if given, e.g. {}'.format(context, repr(func_or_not), EXAMPLE_CALLABLE))
+                         'if given'.format(context, repr(func_or_not)))
     if not func_or_not and not required:
         return
     elif not func_or_not:
         raise ValueError('{}xpected a callable, '
-                         'e.g. {} but got {}'.format(context, EXAMPLE_CALLABLE, repr(func_or_not)))
+                         'got {}'.format(context, repr(func_or_not)))
     module, func = func_or_not.split(':')
     try:
+        # The import statement in Python 2 expects (decoded) str types instead of unicode strings
+        if PY2 and isinstance(func, unicode):
+            func = func.encode('utf-8')
         mod = __import__(module, globals(), locals(), [func], 0)
     except Exception as e:
         tb = traceback.format_exc()
@@ -329,7 +335,7 @@ def _case_insensitive_lookup(dic, lookup_list, has_seen):
         match = re.search(pattern, k, re.IGNORECASE)
         val = dic[k]
         if match:
-            if isinstance(val, str):
+            if isinstance(val, string_types):
                 if ',' in val:
                     val = val.split(',')
                 else:

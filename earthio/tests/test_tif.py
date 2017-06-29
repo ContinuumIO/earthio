@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import glob
 import os
 import sys
@@ -17,6 +19,7 @@ from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                     assertions_on_band_metadata)
 from earthio.util import BandSpec
 
+
 if TIF_FILES:
     TIF_DIR = os.path.dirname(TIF_FILES[0])
 band_specs = [
@@ -35,6 +38,7 @@ band_specs = [
 @pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_meta():
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
     for tif in TIF_FILES:
         raster, meta = load_tif_meta(tif)
         assert hasattr(raster, 'read')
@@ -53,6 +57,7 @@ def test_read_meta():
 @pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_array():
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
     meta = load_dir_of_tifs_meta(TIF_DIR, band_specs)
     es = load_dir_of_tifs_array(TIF_DIR, meta, band_specs)
     for var in es.data_vars:
@@ -73,6 +78,7 @@ def test_read_array():
 @pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_reader_kwargs():
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
     band_specs_kwargs = []
     for b in band_specs:
         b = attr.asdict(b)

@@ -22,6 +22,8 @@ onto the same coordinate system, for example::
     pipe.fit_ensemble(X, init_ensemble_size=3, ngen=1).predict_many(X)
 '''
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import OrderedDict
 import logging
 

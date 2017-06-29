@@ -6,9 +6,9 @@
 
 '''
 
-from collections import (namedtuple,
-                         Sequence,
-                         OrderedDict)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from collections import namedtuple, OrderedDict
 import copy
 from functools import wraps
 import gc

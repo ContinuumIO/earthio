@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 
 import pytest
@@ -8,6 +10,8 @@ from earthio.tests.util import (TIF_FILES, HDF5_FILES,
                                     EARTHIO_HAS_EXAMPLES)
 from earthio.tests.test_tif import band_specs as tif_band_specs
 
+TRIALS = {}
+
 if EARTHIO_HAS_EXAMPLES:
     TRIALS = {'tif': os.path.dirname(TIF_FILES[0]),
               'hdf5': HDF5_FILES[0],
@@ -15,6 +19,7 @@ if EARTHIO_HAS_EXAMPLES:
               'netcdf': NETCDF_FILES[0]}
 else:
     TRIALS = {}
+
 @pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 @pytest.mark.parametrize('ftype,filename', sorted(TRIALS.items()))

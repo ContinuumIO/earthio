@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from collections import OrderedDict
 
 import attr
@@ -80,6 +82,7 @@ def test_reader_kwargs_window(ftype):
         full_es = load_hdf4_array(HDF4_FILES[0], meta, band_specs)
     elif ftype == 'tif':
         band_specs = tif_band_specs[:2]
+        TIF_DIR = os.path.dirname(TIF_FILES[0])
         meta = load_dir_of_tifs_meta(TIF_DIR, band_specs=band_specs)
         full_es = load_dir_of_tifs_array(TIF_DIR, meta, band_specs)
     band_specs_window = []

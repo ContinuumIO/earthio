@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 import sys
 
@@ -9,6 +11,7 @@ from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                 NETCDF_FILES,
                                 assertions_on_metadata)
 from earthio.util import BandSpec
+
 if NETCDF_FILES:
     NETCDF_DIR = os.path.dirname(NETCDF_FILES[0])
 

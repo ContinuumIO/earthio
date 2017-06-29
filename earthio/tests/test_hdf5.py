@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import glob
 import gdal
 import os
@@ -17,6 +19,7 @@ from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                     assertions_on_band_metadata)
 
 from earthio.util import BandSpec
+
 if HDF5_FILES:
     HDF5_DIR = os.path.dirname(HDF5_FILES[0])
 

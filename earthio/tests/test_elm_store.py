@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 
 import attr
@@ -20,7 +22,13 @@ band_specs = {'hdf': hdf4_band_specs,
               'tif': tif_band_specs,
               'netcdf': ['HQobservationTime']}
 
-FILES = {'hdf': HDF4_FILES, 'netcdf': NETCDF_FILES, 'tif': TIF_FILES}
+FILES = {}
+if HDF4_FILES:
+    FILES['hdf'] = HDF4_FILES
+if NETCDF_FILES:
+    FILES['netcdf'] = NETCDF_FILES
+if TIF_FILES:
+    FILES['tif'] = TIF_FILES
 
 
 def _setup(ftype, fnames_list):

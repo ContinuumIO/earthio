@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import glob
 import os
 
@@ -17,6 +19,7 @@ from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                 assertions_on_band_metadata)
 if HDF4_FILES:
     HDF4_DIR = os.path.dirname(HDF4_FILES[0])
+
 kwargs = {}
 band_specs = [
     BandSpec('long_name', 'Band 1 ', 'band_1', **kwargs),
