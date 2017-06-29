@@ -6,10 +6,11 @@ import numpy as np
 
 from earthio.netcdf import load_netcdf_meta, load_netcdf_array
 from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
-                                    NETCDF_FILES,
-                                    assertions_on_metadata)
+                                NETCDF_FILES,
+                                assertions_on_metadata)
 from earthio.util import BandSpec
-NETCDF_DIR = os.path.dirname(NETCDF_FILES[0])
+if NETCDF_FILES:
+    NETCDF_DIR = os.path.dirname(NETCDF_FILES[0])
 
 variables_dict = dict(HQobservationTime='HQobservationTime')
 variables_list = ['HQobservationTime']

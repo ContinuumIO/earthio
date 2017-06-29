@@ -22,12 +22,13 @@ import xarray as xr
 
 from earthio.metadata_selection import match_meta
 from earthio.util import (geotransform_to_coords,
-                              geotransform_to_bounds,
-                              SPATIAL_KEYS,
-                              raster_as_2d,
-                              READ_ARRAY_KWARGS,
-                              take_geo_transform_from_meta,
-                              BandSpec)
+                          geotransform_to_bounds,
+                          SPATIAL_KEYS,
+                          raster_as_2d,
+                          READ_ARRAY_KWARGS,
+                          take_geo_transform_from_meta,
+                          BandSpec,
+                          meta_strings_to_dict)
 
 from earthio import ElmStore
 logger = logging.getLogger(__name__)
@@ -66,7 +67,7 @@ def load_tif_meta(filename):
     meta['height'] = r.height
     meta['width'] = r.width
     meta['name'] = meta['sub_dataset_name'] = filename
-    return r, meta
+    return r, meta_strings_to_dict(meta)
 
 
 def ls_tif_files(dir_of_tiffs):

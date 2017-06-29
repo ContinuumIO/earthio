@@ -26,9 +26,10 @@ from collections import OrderedDict
 import logging
 
 import dask.array as da
+import numpy as np
 import xarray as xr
 
-from earthio.util import (_extract_valid_xy,
+from earthio.util import (_extract_valid_xyzt,
                           Canvas,
                           geotransform_to_bounds,
                           dummy_canvas)
@@ -135,9 +136,7 @@ class ElmStore(xr.Dataset):
             if band == 'flat':
                 continue
             band_arr = getattr(self, band)
-            x, xname, y, yname = _extract_valid_xy(band_arr)
-            z = getattr(band_arr, 'z', None)
-            t = getattr(band_arr, 't', None)
+            (xname, x), (yname, y), (zname, z), (tname, t) = _extract_valid_xyzt(band_arr)
             if x is not None:
                 buf_xsize = x.size
             else:
@@ -199,10 +198,10 @@ class ElmStore(xr.Dataset):
         return plot_3d(self, bands, title, scale, axis_labels, **imshow_kwargs)
 
     def __str__(self):
-        return "ElmStore:\n" + super().__str__().replace('xarray', 'elm')
+        return "ElmStore:\n" + super(ElmStore, self).__str__().replace('xarray', 'elm')
 
     def __repr__(self):
-        return "ElmStore:\n" + super().__repr__().replace('xarray', 'elm')
+        return "ElmStore:\n" + super(ElmStore, self).__repr__().replace('xarray', 'elm')
 
 
 OK_X_DATA_TYPES = (ElmStore, xr.Dataset, da.Array)

@@ -15,10 +15,10 @@ from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                     TIF_FILES,
                                     assertions_on_metadata,
                                     assertions_on_band_metadata)
-
 from earthio.util import BandSpec
 
-TIF_DIR = os.path.dirname(TIF_FILES[0])
+if TIF_FILES:
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
 band_specs = [
     BandSpec('name', '_B1.TIF', 'band_1'),
     BandSpec('name', '_B2.TIF', 'band_2'),
@@ -31,6 +31,7 @@ band_specs = [
     BandSpec('name', '_B10.TIF', 'band_10'),
     BandSpec('name', '_B11.TIF', 'band_11'),
 ]
+
 @pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
                reason='elm-data repo has not been cloned')
 def test_read_meta():

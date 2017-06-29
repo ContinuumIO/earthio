@@ -22,14 +22,15 @@ import numpy as np
 import xarray as xr
 
 from earthio.util import (geotransform_to_bounds,
-                              geotransform_to_coords,
-                              row_col_to_xy,
-                              raster_as_2d,
-                              Canvas,
-                              BandSpec,
-                              READ_ARRAY_KWARGS,
-                              take_geo_transform_from_meta,
-                              window_to_gdal_read_kwargs)
+                          geotransform_to_coords,
+                          row_col_to_xy,
+                          raster_as_2d,
+                          Canvas,
+                          BandSpec,
+                          READ_ARRAY_KWARGS,
+                          take_geo_transform_from_meta,
+                          window_to_gdal_read_kwargs,
+                          meta_strings_to_dict)
 
 __all__ = [
     'load_hdf4_meta',
@@ -55,7 +56,7 @@ def load_hdf4_meta(datafile):
              'sub_datasets': sds,
              'name': datafile,
             }
-    return meta
+    return meta_strings_to_dict(meta)
 
 
 def load_hdf4_array(datafile, meta, band_specs=None):

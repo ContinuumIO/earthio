@@ -4,7 +4,8 @@ import attr
 import pytest
 import numpy as np
 
-from earthio.tests.util import HDF4_FILES, NETCDF_FILES, TIF_FILES
+from earthio.tests.util import (HDF4_FILES, NETCDF_FILES,
+                                TIF_FILES, EARTHIO_HAS_EXAMPLES)
 from earthio.util import *
 from earthio import *
 from earthio.tests.test_hdf4 import band_specs as hdf4_band_specs
@@ -35,8 +36,12 @@ def _setup(ftype, fnames_list):
     es = load_array(fname, meta, bs)
     return es
 
+sorted_file_names = sorted(FILES.items())
+
+@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
+               reason='elm-data repo has not been cloned')
 @pytest.mark.slow
-@pytest.mark.parametrize('ftype,fnames_list', sorted(FILES.items()))
+@pytest.mark.parametrize('ftype,fnames_list', sorted_file_names)
 def test_reshape(ftype, fnames_list):
     old_shapes = {}
     es = _setup(ftype, fnames_list)
@@ -91,6 +96,8 @@ def test_reshape(ftype, fnames_list):
 
 @pytest.mark.parametrize('ftype, fnames_list', sorted(x for x in FILES.items() if not 'tif' in x))
 def test_elm_store_methods(ftype, fnames_list):
+    if not fnames_list:
+        pytest.skip('test data has not been downloaded')
     es = _setup(ftype, fnames_list)
     bands = tuple(es.data_vars)
     assert bands == tuple(es.band_order)
@@ -118,6 +125,8 @@ def test_elm_store_methods(ftype, fnames_list):
 
 @pytest.mark.parametrize('ftype, fnames_list', sorted(FILES.items()))
 def test_canvas_select(ftype, fnames_list):
+    if not fnames_list:
+        pytest.skip('test data has not been downloaded')
     if 'netcdf' in ftype:
         pytest.xfail('This test will fail with IndexError - Needs to be resolved')
     es = _setup(ftype, fnames_list)
@@ -145,9 +154,12 @@ def test_canvas_select(ftype, fnames_list):
         assert band_arr2.values.shape[yidx] == band_arr.values.shape[yidx] // 4
         break
 
+
 def test_flatten_inverse_flatten():
     ftype, fnames_list = sorted(f for f in FILES.items()
                                 if f[0] == 'hdf')[0]
+    if not fnames_list:
+        pytest.skip('test data has not been downloaded')
     es = _setup(ftype, fnames_list)
     flat = flatten(es)
     inv = inverse_flatten(flat)
@@ -160,6 +172,7 @@ def test_flatten_inverse_flatten():
 
 @pytest.mark.requires_elm # requires an install of elm for plot_3d to work
 def test_elm_store_plot_3d():
+
     import matplotlib.pyplot as plt
     def ret_99(*args, **kwargs):
         return 99
@@ -172,6 +185,9 @@ def test_elm_store_plot_3d():
         plt.title = ret_99
         ftype, fnames_list = sorted(f for f in FILES.items()
                                     if f[0] == 'hdf')[0]
+        if not fnames_list:
+            pytest.skip('test data has not been downloaded')
+
         es = _setup(ftype, fnames_list)
         out = es.plot_3d(('band_1', 'band_2', 'band_3'), axis_labels=True)
         assert len(out) == 2

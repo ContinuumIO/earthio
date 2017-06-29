@@ -11,12 +11,12 @@ from earthio.hdf4 import (load_hdf4_meta,
 from earthio.util import BandSpec
 
 from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
-                                    EARTHIO_EXAMPLE_DATA_PATH,
-                                    HDF4_FILES,
-                                    assertions_on_metadata,
-                                    assertions_on_band_metadata)
-
-HDF4_DIR = os.path.dirname(HDF4_FILES[0])
+                                EARTHIO_EXAMPLE_DATA_PATH,
+                                HDF4_FILES,
+                                assertions_on_metadata,
+                                assertions_on_band_metadata)
+if HDF4_FILES:
+    HDF4_DIR = os.path.dirname(HDF4_FILES[0])
 kwargs = {}
 band_specs = [
     BandSpec('long_name', 'Band 1 ', 'band_1', **kwargs),

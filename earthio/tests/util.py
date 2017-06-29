@@ -2,7 +2,11 @@
 import glob
 import os
 EARTHIO_EXAMPLE_DATA_PATH = os.environ.get('EARTHIO_EXAMPLE_DATA_PATH')
+if not EARTHIO_EXAMPLE_DATA_PATH:
+    EARTHIO_EXAMPLE_DATA_PATH = os.environ.get('ELM_EXAMPLE_DATA_PATH')
 if EARTHIO_EXAMPLE_DATA_PATH:
+    if not os.path.exists(EARTHIO_EXAMPLE_DATA_PATH):
+        raise ValueError('EARTHIO_EXAMPLE_DATA_PATH {} does not exist'.format(EARTHIO_EXAMPLE_DATA_PATH))
     EARTHIO_HAS_EXAMPLES = True
     EARTHIO_EXAMPLE_DATA_PATH = os.path.expanduser(EARTHIO_EXAMPLE_DATA_PATH)
     args = ('landsat-pds',

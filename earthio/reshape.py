@@ -258,13 +258,19 @@ def inverse_flatten(flat, add_canvas=False, **attrs):
     Returns:
         :es:  ElmStore (band, y, x)
     '''
+    print(repr((attrs, flat.attrs, flat.flat.attrs)))
     flat = filled_flattened(flat)
+    print(repr((attrs, flat.attrs, flat.flat.attrs)))
     attrs2 = copy.deepcopy(flat.attrs)
-    attrs2.update(copy.deepcopy(flat.flat.attrs))
-    attrs2.update(copy.deepcopy(attrs))
-    attrs = attrs2
+    attrs3 = copy.deepcopy(flat.flat.attrs)
+    attrs = copy.deepcopy(attrs)
+    for idx, a in enumerate((attrs2, attrs3)):
+        for k, v in a.items():
+            if k == 'canvas' and idx == 1: continue
+            attrs[k] = v
     band_list = zip(flat.flat.band_order, flat.old_dims)
     es_new_dict = OrderedDict()
+    #raise ValueError(repr(attrs))
     if 'canvas' in attrs:
         new_coords = canvas_to_coords(attrs['canvas'])
     else:
