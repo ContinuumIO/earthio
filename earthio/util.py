@@ -431,7 +431,7 @@ def get_shared_canvas(es):
     old_canvas = None
     shared = True
     for band in es.data_vars:
-        canvas = getattr(es, band).canvas
+        canvas = getattr(getattr(es, band), 'canvas', None)
         if canvas == old_canvas or old_canvas is None:
             pass
         else:
