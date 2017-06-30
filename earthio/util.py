@@ -7,10 +7,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-try:
-    import __builtin__
-except:
-    pass
 from collections import namedtuple, OrderedDict, Sequence
 from itertools import product
 import logging
@@ -39,12 +35,13 @@ logger = logging.getLogger(__name__)
 SPATIAL_KEYS = ('height', 'width', 'geo_transform', 'bounds')
 
 READ_ARRAY_KWARGS = ('window', 'buf_xsize', 'buf_ysize',)
+try:
+    unicode
+except NameError:
+    unicode = str
 
 def is_string(s):
-    if 'basestring' in dir(__builtin__):
-        typ = basestring
-    else:
-        typ = (str, unicode)
+    typ = (str, unicode)
     return isinstance(s, typ)
 
 
