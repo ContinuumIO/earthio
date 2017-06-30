@@ -9,7 +9,8 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-S3_TIF_DIR = os.environ.get('EARTHIO_EXAMPLE_DATA_PATH', 'tif')
+S3_TIF_DIR = os.environ.get('EARTHIO_EXAMPLE_DATA_PATH',
+                            os.environ.get('ELM_EXAMPLE_DATA_PATH', 'tif'))
 
 class SceneDownloader:
 
