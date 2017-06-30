@@ -258,9 +258,7 @@ def inverse_flatten(flat, add_canvas=False, **attrs):
     Returns:
         :es:  ElmStore (band, y, x)
     '''
-    print(repr((attrs, flat.attrs, flat.flat.attrs)))
     flat = filled_flattened(flat)
-    print(repr((attrs, flat.attrs, flat.flat.attrs)))
     attrs2 = copy.deepcopy(flat.attrs)
     attrs3 = copy.deepcopy(flat.flat.attrs)
     attrs = copy.deepcopy(attrs)
