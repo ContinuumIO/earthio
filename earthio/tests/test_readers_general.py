@@ -11,12 +11,18 @@ from earthio import *
 from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                 HDF4_FILES, HDF5_FILES, TIF_FILES)
 
-if EARTHIO_HAS_EXAMPLES:
+if HDF4_FILES:
     from earthio.tests.test_hdf4 import band_specs as hdf4_band_specs
+else:
+    hdf4_band_specs = None
+if HDF5_FILES:
     from earthio.tests.test_hdf5 import get_band_specs
+else:
+    get_band_specs = None
+if TIF_FILES:
     from earthio.tests.test_tif import TIF_DIR, band_specs as tif_band_specs
 else:
-    hdf4_band_specs = get_band_specs = TIF_DIR = tif_band_specs = None
+    TIF_DIR = tif_band_specs = None
 
 def random_elm_store_no_meta(width=100, height=200):
     bands = ['band_1', 'band_2']
@@ -82,7 +88,6 @@ def test_reader_kwargs_window(ftype):
         full_es = load_hdf4_array(HDF4_FILES[0], meta, band_specs)
     elif ftype == 'tif':
         band_specs = tif_band_specs[:2]
-        TIF_DIR = os.path.dirname(TIF_FILES[0])
         meta = load_dir_of_tifs_meta(TIF_DIR, band_specs=band_specs)
         full_es = load_dir_of_tifs_array(TIF_DIR, meta, band_specs)
     band_specs_window = []

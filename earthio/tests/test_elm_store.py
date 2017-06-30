@@ -164,10 +164,10 @@ def test_canvas_select(ftype, fnames_list):
 
 
 def test_flatten_inverse_flatten():
-    ftype, fnames_list = sorted(f for f in FILES.items()
-                                if f[0] == 'hdf')[0]
-    if not fnames_list:
+    srted = sorted(f for f in FILES.items() if f[0] == 'hdf')
+    if not srted:
         pytest.skip('test data has not been downloaded')
+    ftype, fnames_list = srted[0]
     es = _setup(ftype, fnames_list)
     flat = flatten(es)
     inv = inverse_flatten(flat)
@@ -191,11 +191,11 @@ def test_elm_store_plot_3d():
         plt.imshow = ret_99
         plt.gcf    = ret_99
         plt.title = ret_99
-        ftype, fnames_list = sorted(f for f in FILES.items()
-                                    if f[0] == 'hdf')[0]
-        if not fnames_list:
+        srted = sorted(f for f in FILES.items()
+                                    if f[0] == 'hdf')
+        if not srted:
             pytest.skip('test data has not been downloaded')
-
+        ftype, fnames_list = srted[0]
         es = _setup(ftype, fnames_list)
         out = es.plot_3d(('band_1', 'band_2', 'band_3'), axis_labels=True)
         assert len(out) == 2

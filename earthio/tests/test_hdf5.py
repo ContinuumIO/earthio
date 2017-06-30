@@ -9,14 +9,13 @@ import numpy as np
 import pytest
 
 from earthio.hdf5 import (load_hdf5_meta,
-                              load_subdataset,
-                              load_hdf5_array)
+                          load_subdataset,
+                          load_hdf5_array)
 
-from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
-                                    EARTHIO_EXAMPLE_DATA_PATH,
-                                    HDF5_FILES,
-                                    assertions_on_metadata,
-                                    assertions_on_band_metadata)
+from earthio.tests.util import (EARTHIO_EXAMPLE_DATA_PATH,
+                                HDF5_FILES,
+                                assertions_on_metadata,
+                                assertions_on_band_metadata)
 
 from earthio.util import BandSpec
 
@@ -46,14 +45,14 @@ def get_band_specs(filename):
 
 
 @pytest.mark.parametrize('hdf', HDF5_FILES or [])
-@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
+@pytest.mark.skipif(not HDF5_FILES,
                reason='elm-data repo has not been cloned')
 def test_read_meta(hdf):
     meta = load_hdf5_meta(hdf)
     assertions_on_metadata(meta)
 
 
-@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
+@pytest.mark.skipif(not HDF5_FILES,
                    reason='elm-data repo has not been cloned')
 def test_load_subdataset():
     f = HDF5_FILES[0]
@@ -67,7 +66,7 @@ def test_load_subdataset():
     assert data_array.data is not None
 
 
-@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES, reason='elm-data repo has not been cloned')
+@pytest.mark.skipif(not HDF5_FILES, reason='elm-data repo has not been cloned')
 @pytest.mark.parametrize('filename', HDF5_FILES)
 def test_read_array(filename):
     sub_dataset_names, band_specs = get_band_specs(filename)
@@ -82,7 +81,7 @@ def test_read_array(filename):
         assertions_on_band_metadata(sample.attrs)
 
 
-@pytest.mark.skipif(not EARTHIO_HAS_EXAMPLES,
+@pytest.mark.skipif(not HDF5_FILES,
                reason='elm-data repo has not been cloned')
 def test_reader_kwargs():
     sub_dataset_names, band_specs = get_band_specs(HDF5_FILES[0])

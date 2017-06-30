@@ -7,6 +7,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import __builtin__
 from collections import namedtuple, OrderedDict, Sequence
 from itertools import product
 import logging
@@ -35,6 +36,13 @@ logger = logging.getLogger(__name__)
 SPATIAL_KEYS = ('height', 'width', 'geo_transform', 'bounds')
 
 READ_ARRAY_KWARGS = ('window', 'buf_xsize', 'buf_ysize',)
+
+def is_string(s):
+    if 'basestring' in dir(__builtin__):
+        typ = basestring
+    else:
+        typ = (str, unicode)
+    return isinstance(s, typ)
 
 
 def mkdir_p(d):
@@ -466,11 +474,11 @@ def meta_strings_to_dict(meta):
     '''
     if hasattr(meta, 'items'):
         for k, v in meta.items():
-            if isinstance(v, basestring):
+            if is_string(v):
                 meta[k] = _meta_strings_to_dict(v)
             else:
                 meta[k] = meta_strings_to_dict(v)
-    elif isinstance(meta, Sequence) and not isinstance(meta, basestring):
+    elif isinstance(meta, Sequence) and not is_string(meta):
         meta = [meta_strings_to_dict(item) for item in meta]
     return meta
 
