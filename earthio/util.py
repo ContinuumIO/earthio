@@ -7,7 +7,10 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import __builtin__
+try:
+    import __builtin__
+except:
+    pass
 from collections import namedtuple, OrderedDict, Sequence
 from itertools import product
 import logging
