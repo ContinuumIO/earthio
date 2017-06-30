@@ -8,10 +8,21 @@ import pytest
 import xarray as xr
 
 from earthio import *
-from earthio.tests.test_hdf4 import HDF4_FILES, band_specs as hdf4_band_specs
-from earthio.tests.test_hdf5 import HDF5_FILES, get_band_specs
-from earthio.tests.test_tif import TIF_FILES, band_specs as tif_band_specs
+from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
+                                HDF4_FILES, HDF5_FILES, TIF_FILES)
 
+if HDF4_FILES:
+    from earthio.tests.test_hdf4 import band_specs as hdf4_band_specs
+else:
+    hdf4_band_specs = None
+if HDF5_FILES:
+    from earthio.tests.test_hdf5 import get_band_specs
+else:
+    get_band_specs = None
+if TIF_FILES:
+    from earthio.tests.test_tif import TIF_DIR, band_specs as tif_band_specs
+else:
+    TIF_DIR = tif_band_specs = None
 
 def random_elm_store_no_meta(width=100, height=200):
     bands = ['band_1', 'band_2']
@@ -58,12 +69,15 @@ def test_na_drop_no_meta():
     val2 = inv2.band_1.values
     assert np.all(val1[~np.isnan(val1)] == val2[~np.isnan(val2)])
 
-
+@pytest.mark.skipIf(not EARTHIO_HAS_EXAMPLES, reason='test data has not been downloaded')
 @pytest.mark.parametrize('ftype', ('hdf4', 'hdf5', 'tif',))
 def test_reader_kwargs_window(ftype):
 
     '''Assert that "window" can be passed in a BandSpec
     to control the (ymin, ymax), (xmin, xmax) window to read'''
+    if not HDF5_FILES or not HDF4_FILES or not TIF_DIR:
+        pytest.skip('test data has not been downloaded')
+
     if ftype == 'hdf5':
         _, band_specs = get_band_specs(HDF5_FILES[0])
         meta = load_hdf5_meta(HDF5_FILES[0])
@@ -74,7 +88,6 @@ def test_reader_kwargs_window(ftype):
         full_es = load_hdf4_array(HDF4_FILES[0], meta, band_specs)
     elif ftype == 'tif':
         band_specs = tif_band_specs[:2]
-        TIF_DIR = os.path.dirname(TIF_FILES[0])
         meta = load_dir_of_tifs_meta(TIF_DIR, band_specs=band_specs)
         full_es = load_dir_of_tifs_array(TIF_DIR, meta, band_specs)
     band_specs_window = []

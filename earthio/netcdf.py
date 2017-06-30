@@ -21,8 +21,9 @@ import netCDF4 as nc
 import xarray as xr
 
 from earthio.util import (geotransform_to_bounds,
-                              VALID_X_NAMES, VALID_Y_NAMES,
-                              take_geo_transform_from_meta)
+                          VALID_X_NAMES, VALID_Y_NAMES,
+                          take_geo_transform_from_meta,
+                          meta_strings_to_dict)
 from earthio import ElmStore
 from earthio.metadata_selection import match_meta
 from six import string_types
@@ -100,7 +101,7 @@ def load_netcdf_meta(datafile):
             'name': datafile,
             'variables': list(ras.variables.keys()),
             }
-    return meta
+    return meta_strings_to_dict(meta)
 
 
 def load_netcdf_array(datafile, meta, band_specs=None):
@@ -131,8 +132,8 @@ def load_netcdf_array(datafile, meta, band_specs=None):
         data = OrderedDict([(v, ds[v]) for v in meta['variables']])
         band_spec = None
     geo_transform = take_geo_transform_from_meta(band_spec=band_spec,
-                                                  required=True,
-                                                  **meta['meta'])
+                                                 required=True,
+                                                 **meta)
     for b, sub_dataset_name in zip(meta['band_meta'], data):
         b['geo_transform'] = meta['geo_transform'] = geo_transform
         b['sub_dataset_name'] = sub_dataset_name

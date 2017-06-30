@@ -12,14 +12,16 @@ from earthio.tif import (load_dir_of_tifs_meta,
                              load_dir_of_tifs_array,
                              load_tif_meta,
                              ls_tif_files)
-from earthio.tests.util import (ELM_HAS_EXAMPLES,
-                                    ELM_EXAMPLE_DATA_PATH,
+from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
+                                    EARTHIO_EXAMPLE_DATA_PATH,
                                     TIF_FILES,
                                     assertions_on_metadata,
                                     assertions_on_band_metadata)
-
 from earthio.util import BandSpec
 
+
+if TIF_FILES:
+    TIF_DIR = os.path.dirname(TIF_FILES[0])
 band_specs = [
     BandSpec('name', '_B1.TIF', 'band_1'),
     BandSpec('name', '_B2.TIF', 'band_2'),
@@ -32,10 +34,10 @@ band_specs = [
     BandSpec('name', '_B10.TIF', 'band_10'),
     BandSpec('name', '_B11.TIF', 'band_11'),
 ]
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+
+@pytest.mark.skipif(not TIF_FILES,
                reason='elm-data repo has not been cloned')
 def test_read_meta():
-    TIF_DIR = os.path.dirname(TIF_FILES[0])
     for tif in TIF_FILES:
         raster, meta = load_tif_meta(tif)
         assert hasattr(raster, 'read')
@@ -51,10 +53,9 @@ def test_read_meta():
         assert heights_names[-1][-1].endswith('_B8.TIF')
 
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not TIF_FILES,
                reason='elm-data repo has not been cloned')
 def test_read_array():
-    TIF_DIR = os.path.dirname(TIF_FILES[0])
     meta = load_dir_of_tifs_meta(TIF_DIR, band_specs)
     es = load_dir_of_tifs_array(TIF_DIR, meta, band_specs)
     for var in es.data_vars:
@@ -72,10 +73,9 @@ def test_read_array():
         assertions_on_band_metadata(sample.attrs)
 
 
-@pytest.mark.skipif(not ELM_HAS_EXAMPLES,
+@pytest.mark.skipif(not TIF_FILES,
                reason='elm-data repo has not been cloned')
 def test_reader_kwargs():
-    TIF_DIR = os.path.dirname(TIF_FILES[0])
     band_specs_kwargs = []
     for b in band_specs:
         b = attr.asdict(b)

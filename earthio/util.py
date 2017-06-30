@@ -28,13 +28,26 @@ __all__ = ['Canvas', 'xy_to_row_col', 'row_col_to_xy',
            'canvas_to_coords', 'VALID_X_NAMES', 'VALID_Y_NAMES',
            'xy_canvas','dummy_canvas', 'BandSpec',
            'set_na_from_meta', 'get_shared_canvas',
-           'take_geo_transform_from_meta', 'import_callable']
+           'take_geo_transform_from_meta', 'import_callable',
+           'meta_strings_to_dict']
 logger = logging.getLogger(__name__)
 
 SPATIAL_KEYS = ('height', 'width', 'geo_transform', 'bounds')
 
 READ_ARRAY_KWARGS = ('window', 'buf_xsize', 'buf_ysize',)
+try:
+    unicode
+except NameError:
+    unicode = str
 
+def is_string(s):
+    typ = (str, unicode)
+    return isinstance(s, typ)
+
+
+def mkdir_p(d):
+    if not os.path.exists(d):
+        os.mkdir(d)
 
 def import_callable(func_or_not, required=True, context=''):
     '''Given a string spec of a callable like "numpy:mean",
@@ -51,7 +64,7 @@ def import_callable(func_or_not, required=True, context=''):
     '''
     # TODO make sure this import_callable func is
     # not defined in two packages - this is a
-    # copy currently from what was elm.config
+    # copy currently from what was earthio.config
     if callable(func_or_not):
         return func_or_not
     context = context + ' -  e' if context else 'E'
@@ -111,6 +124,8 @@ class BandSpec(object):
 
 VALID_X_NAMES = ('lon','longitude', 'x') # compare with lower-casing
 VALID_Y_NAMES = ('lat','latitude', 'y') # same comment
+VALID_Z_NAMES = ('depth', 'pressure', 'height', 'altitude', 'elevation', 'z')
+VALID_TIME_NAMES = ('t', 'time', 'datetime', 'date')
 
 DEFAULT_GEO_TRANSFORM = (-180, .1, 0, 90, 0, -.1)
 
@@ -123,6 +138,10 @@ def dummy_canvas(buf_xsize, buf_ysize, dims, **kwargs):
     dummy['bounds'] = geotransform_to_bounds(dummy['buf_xsize'],
                                              dummy['buf_ysize'],
                                              dummy['geo_transform'])
+    # TODO review all places where this function
+    # is called by uncommenting the following
+    # and noting test failures
+    #raise ValueError(repr((buf_xsize, buf_ysize, dims, kwargs)))
     return Canvas(**dummy)
 
 def xy_to_row_col(x, y, geo_transform):
@@ -162,20 +181,19 @@ def raster_as_2d(raster):
     return raster
 
 
+def _validate_dim(valid_names, dims):
+    for name in valid_names:
+        for d in dims:
+            if d.lower().startswith(name.lower()):
+                return d
+
+
 def canvas_to_coords(canvas):
     dims = canvas.dims
     x, y = geotransform_to_coords(canvas.buf_xsize, canvas.buf_ysize,
                                   canvas.geo_transform)
-    dims2 = []
-    label_y, label_x = 'y', 'x'
-    for d in dims:
-        if d.lower() in VALID_X_NAMES:
-            label_x = d
-            break
-    for d in dims:
-        if d.lower() in VALID_Y_NAMES:
-            label_y = d
-            break
+    label_x = _validate_dim(VALID_X_NAMES, dims) or 'x'
+    label_y = _validate_dim(VALID_Y_NAMES, dims) or 'y'
     coords = [(label_y, y), (label_x, x)]
     if canvas.zbounds is not None and canvas.zsize is not None:
         z = np.linspace(zbounds[0], zbounds[1], zsize)
@@ -192,30 +210,28 @@ def canvas_to_coords(canvas):
         raise ValueError()
     coords += [('z', z), ('t', t)]
     coords = dict(coords)
-    coords = OrderedDict((d, coords[d]) for d in dims)
+    try:
+        coords = OrderedDict((d, coords[d]) for d in dims)
+    except:
+        raise KeyError('Failed on looking up dims {} in coords with keys {}'.format(dims, coords.keys()))
     if any(coords[d] is None for d in dims):
         raise ValueError('coords.keys(): {} is not '
                          'inclusive of all dims'.format(coords.keys(), dims))
     return coords
 
 
-def _extract_valid_xy(band_arr):
-    x = xname = None
-    for name in VALID_X_NAMES:
-        x = getattr(band_arr, name, getattr(band_arr, name.lower(), None))
-        if x is not None:
-            break
-    if x is not None:
-        xname = name
-    y = yname = None
-    for name in VALID_Y_NAMES:
-        y = getattr(band_arr, name, getattr(band_arr, name.lower(), None))
-        if y is not None:
-            break
-    if y is not None:
-        yname = name
-    return x, name, y, yname
 
+def _extract_valid_xyzt(band_arr):
+    validators = (VALID_X_NAMES, VALID_Y_NAMES, VALID_Z_NAMES, VALID_TIME_NAMES)
+    output = []
+    for valid in validators:
+        name = _validate_dim(valid, band_arr.dims)
+        if name:
+            points = getattr(band_arr, name)
+            output.append((name, points))
+        else:
+            output.append((None, None))
+    return tuple(output)
 
 
 def xy_canvas(geo_transform, buf_xsize, buf_ysize, dims, ravel_order='C'):
@@ -429,7 +445,7 @@ def get_shared_canvas(es):
     old_canvas = None
     shared = True
     for band in es.data_vars:
-        canvas = getattr(es, band).canvas
+        canvas = getattr(getattr(es, band), 'canvas', None)
         if canvas == old_canvas or old_canvas is None:
             pass
         else:
@@ -437,3 +453,32 @@ def get_shared_canvas(es):
             break
         old_canvas = canvas
     return (canvas if shared else None)
+
+
+def _meta_strings_to_dict(s):
+    if ';' in s and '=' in s and s.index('=') < s.index(';'):
+        items = [_.strip() for _ in s.split(';')]
+        items = [tuple(item.split('=')) for item in items]
+        items = [(item if len(item) == 2 else item + (None,))
+                 for item in items]
+        return dict(items)
+    return s
+
+
+def meta_strings_to_dict(meta):
+    '''Parses strings within old GDAL meta like:
+    {u'HDF5_GLOBAL.FileHeader': u'DOI=Realtime;\nDOIshortName=3IMERGHH;\n}
+
+    Splitting on ";" for items then on "="
+    for key/value.  Value isNone where empty string is right of =
+    '''
+    if hasattr(meta, 'items'):
+        for k, v in meta.items():
+            if is_string(v):
+                meta[k] = _meta_strings_to_dict(v)
+            else:
+                meta[k] = meta_strings_to_dict(v)
+    elif isinstance(meta, Sequence) and not is_string(meta):
+        meta = [meta_strings_to_dict(item) for item in meta]
+    return meta
+

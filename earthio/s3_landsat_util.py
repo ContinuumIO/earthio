@@ -9,7 +9,8 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-S3_TIF_DIR = os.environ.get('ELM_EXAMPLE_DATA_PATH', 'tif')
+S3_TIF_DIR = os.environ.get('EARTHIO_EXAMPLE_DATA_PATH',
+                            os.environ.get('ELM_EXAMPLE_DATA_PATH', 'tif'))
 
 class SceneDownloader:
 
@@ -74,7 +75,6 @@ class SceneDownloader:
             print('Download', url, 'to', fname)
             with urlopen(url) as f:
                 with open(fname, 'wb') as f2:
-
                     f2.write(f.read())
         except:
             if os.path.exists(fname):

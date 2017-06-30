@@ -35,7 +35,7 @@ build_earthio_env() {
         conda install -c defaults -c conda-forge requests pbzip2 python-magic
         mkdir -p $ELM_EXAMPLE_DATA_PATH
         df -h
-        pushd $ELM_EXAMPLE_DATA_PATH && python "${EARTHIO_BUILD_DIR}/scripts/download_test_data.py" --files hdf4.tar.bz2 hdf5.tar.bz2 tif.tar.bz2 && popd
+        pushd $ELM_EXAMPLE_DATA_PATH && python "${EARTHIO_BUILD_DIR}/scripts/download_test_data.py" --files hdf4.tar.bz2 tif.tar.bz2  && popd
         df -h
     fi
 

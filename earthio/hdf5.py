@@ -24,14 +24,15 @@ import numpy as np
 import xarray as xr
 
 from earthio.util import (geotransform_to_bounds,
-                              geotransform_to_coords,
-                              Canvas,
-                              BandSpec,
-                              row_col_to_xy,
-                              raster_as_2d,
-                              READ_ARRAY_KWARGS,
-                              take_geo_transform_from_meta,
-                              window_to_gdal_read_kwargs)
+                          geotransform_to_coords,
+                          Canvas,
+                          BandSpec,
+                          row_col_to_xy,
+                          raster_as_2d,
+                          READ_ARRAY_KWARGS,
+                          take_geo_transform_from_meta,
+                          window_to_gdal_read_kwargs,
+                          meta_strings_to_dict)
 
 from earthio import ElmStore
 from earthio.metadata_selection import match_meta
@@ -68,10 +69,10 @@ def load_hdf5_meta(datafile):
         vals = _nc_str_to_dict(v)
         meta.update(vals)
 
-    return dict(meta=meta,
-                band_meta=band_metas,
-                sub_datasets=sds,
-                name=datafile)
+    return meta_strings_to_dict(dict(meta=meta,
+                                band_meta=band_metas,
+                                sub_datasets=sds,
+                                name=datafile))
 
 def load_subdataset(subdataset, attrs, band_spec, **reader_kwargs):
     '''Load a single subdataset'''
