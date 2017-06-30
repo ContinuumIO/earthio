@@ -21,7 +21,6 @@ requirements:
     - dask
     - datashader
     - dill
-    - distributed
     - geoviews
     - holoviews
     - iris
