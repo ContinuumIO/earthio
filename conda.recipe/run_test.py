@@ -6,7 +6,7 @@ from dask import *
 from datashader import *
 from dill import *
 from distributed import *
-from geoviews import *
+#from geoviews import *
 from holoviews import *
 from iris import *
 from jupyter import *
