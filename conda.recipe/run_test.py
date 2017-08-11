@@ -25,3 +25,4 @@ from shapely import *
 from statsmodels import *
 from xarray import *
 import yaml
+import elm.config.tests.fixtures, elm.pipeline, elm.pipeline.tests.util

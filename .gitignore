@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# elm data
+[0-9]*
+netcdf
+tif
+hdf[45]
