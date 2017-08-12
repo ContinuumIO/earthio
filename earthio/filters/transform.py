@@ -10,11 +10,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import copy
 import logging
 
-from .. import ElmStore
+from earthio import ElmStore
 import numpy as np
 import xarray as xr
 
-from .step_mixin import StepMixin
+from earthio.filters.step_mixin import StepMixin
 
 logger = logging.getLogger(__name__)
 

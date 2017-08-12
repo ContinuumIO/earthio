@@ -16,17 +16,17 @@ from functools import partial
 import logging
 from pprint import pformat
 
-from ..elm_store import ElmStore
-from ..reshape import flatten as _flatten
+from earthio.elm_store import ElmStore
+from earthio.reshape import flatten as _flatten
 import numpy as np
 import xarray as xr
 from sklearn.utils import check_array as _check_array
 import sklearn.preprocessing as skpre
 import sklearn.feature_selection as skfeat
 
-from .config.func_signatures import get_args_kwargs_defaults
-from .change_coords import CHANGE_COORDS_ACTIONS
-from .preproc_scale import SKLEARN_PREPROCESSING
+from earthio.filters.config.func_signatures import get_args_kwargs_defaults
+from earthio.filters.change_coords import CHANGE_COORDS_ACTIONS
+from earthio.filters.preproc_scale import SKLEARN_PREPROCESSING
 try:
     from .. import load_meta, load_array
 except ImportError:

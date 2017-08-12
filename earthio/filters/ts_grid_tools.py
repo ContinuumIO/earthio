@@ -22,8 +22,8 @@ import pandas as pd
 from scipy.stats import describe
 import xarray as xr
 
-from .step_mixin import StepMixin
-from .. import ElmStore
+from earthio.filters.step_mixin import StepMixin
+from earthio import ElmStore
 
 
 logger = logging.getLogger(__name__)
@@ -174,7 +174,11 @@ class TSProbs(StepMixin):
 
     def fit_transform(self, X, y=None, sample_weight=None, **kwargs):
         __doc__ = ts_probs.__doc__
-        from elm.pipeline.steps import ModifySample
+        try:
+            from elm.pipeline.steps import ModifySample
+        except ImportError:
+            logger.error('TSProbs.fit_transform method depends on elm.pipeline.steps.ModifySample')
+            sys.exit(1)
         if not self._kwargs.get('band'):
             raise ValueError("Expected 'band' keyword to TSProbs")
         m = ModifySample(ts_probs, **self._kwargs)

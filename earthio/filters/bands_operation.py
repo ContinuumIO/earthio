@@ -3,8 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from functools import partial
 
 import xarray as xr
-from .change_coords import ModifySample
-from ..elm_store import ElmStore
+from earthio.filters.change_coords import ModifySample
+from earthio.elm_store import ElmStore
 
 from six import PY2
 

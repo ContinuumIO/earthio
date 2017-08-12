@@ -2,17 +2,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import numpy as np
 import xarray as xr
+import pytest
 
 from sklearn.decomposition import PCA
 
 from elm.config import ConfigParser
 from elm.config.tests.fixtures import *
-from elm.pipeline.tests.util import (test_one_config as tst_one_config,
-                                     tmp_dirs_context)
-from ..make_blobs import random_elm_store
+from earthio.filters.make_blobs import random_elm_store
 from earthio.reshape import *
-from ..elm_store import ElmStore
-from elm.pipeline import Pipeline
+from earthio.elm_store import ElmStore
 
 X = random_elm_store()
 
@@ -78,6 +76,7 @@ def tst_one_pipeline(pipeline,
     return sample, new_es[0]
 
 
+@pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps')
 def test_flat_and_inverse():
 
     flat = [{'flatten': 'C'}, {'inverse_flatten': True}, {'transpose': ['y', 'x']}]
@@ -85,6 +84,7 @@ def test_flat_and_inverse():
     assert np.all(new_es.band_1.values == es.band_1.values)
 
 
+@pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps')
 def test_agg():
     for dim, axis in zip(('x', 'y'), (1, 0)):
         for r in range(2):
@@ -101,6 +101,7 @@ def test_agg():
             assert np.all(diff < 1e-5)
 
 
+@pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps')
 def test_transpose():
     transpose_examples = {
         'xy': [{'transpose': ['x', 'y']}],
@@ -137,6 +138,7 @@ def modify_sample_example(es, *args, **kwargs):
     return ElmStore(new_es, attrs=es.attrs)
 
 
+@pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps')
 def test_modify_sample():
     modify = [{'modify_sample': 'elm.sample_util.tests.test_change_coords:modify_sample_example'}]
     es, new_es = tst_one_pipeline(modify)
@@ -150,6 +152,7 @@ def test_modify_sample():
         band_arr = getattr(inv, band)
         assert band_arr.values.shape == getattr(new_es, band).values.shape
 
+@pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps')
 def test_agg_inverse_flatten():
     for idx, dims in enumerate((['x', 'y'], ['y', 'x'])):
         for agg_dim in ('x', 'y'):
@@ -172,6 +175,7 @@ def test_agg_inverse_flatten():
                 assert x1 is not None and x2 is not None
 
 
+@pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps')
 def test_set_na_from_meta():
     set_na = [{'modify_sample': 'earthio:set_na_from_meta'}]
     for delim in ('_', '-', ' ', '   '):

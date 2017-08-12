@@ -4,10 +4,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 _DEBUG = False
 
 from elm.config.tests.fixtures import *
-from ..polygon_tools import (points_in_polys,
-                             vec_points_in_polys,
-                             plot_poly,
-                             close_poly)
+from earthio.filters.polygon_tools import (points_in_polys,
+                                           vec_points_in_polys,
+                                           plot_poly,
+                                           close_poly)
 import numpy as np
 from itertools import product
 

@@ -2,13 +2,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from collections import OrderedDict
 
-from ..elm_store import ElmStore
+from earthio.elm_store import ElmStore
 from earthio import xy_canvas
 import numpy as np
 import xarray as xr
 from sklearn.datasets import make_blobs
 
-from .config import filter_kwargs_to_func
+from earthio.filters.config import filter_kwargs_to_func
 
 
 BANDS = ['band_{}'.format(idx + 1) for idx in range(40)]

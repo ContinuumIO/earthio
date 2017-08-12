@@ -53,4 +53,3 @@ test:
 
   requires:
     - pytest
-    - elm # Only needed for tests

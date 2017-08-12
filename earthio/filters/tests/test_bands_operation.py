@@ -3,8 +3,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import numpy as np
 
 from elm.config.tests.fixtures import *
-from ..make_blobs import random_elm_store
-from ..bands_operation import *
+from earthio.filters.make_blobs import random_elm_store
+from earthio.filters.bands_operation import *
 
 def setup():
     X = random_elm_store()

@@ -7,19 +7,19 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 '''
-from ..reshape import (select_canvas as _select_canvas,
-                       drop_na_rows as _drop_na_rows,
-                       ElmStore,
-                       flatten as _flatten,
-                       inverse_flatten as _inverse_flatten,
-                       Canvas,
-                       check_is_flat,
-                       transpose as _transpose,
-                       aggregate_simple)
+from earthio.reshape import (select_canvas as _select_canvas,
+                             drop_na_rows as _drop_na_rows,
+                             ElmStore,
+                             flatten as _flatten,
+                             inverse_flatten as _inverse_flatten,
+                             Canvas,
+                             check_is_flat,
+                             transpose as _transpose,
+                             aggregate_simple)
 
 import numpy as np
 
-from .step_mixin import StepMixin
+from earthio.filters.step_mixin import StepMixin
 
 CHANGE_COORDS_ACTIONS = (
     'select_canvas',
@@ -257,7 +257,7 @@ class ModifySample(StepMixin):
         self.kwargs = kwargs
 
     def fit_transform(self, X, y=None, sample_weight=None, **kwargs):
-        from .sample_pipeline import _split_pipeline_output
+        from earthio.filters.sample_pipeline import _split_pipeline_output
         kw = dict(y=y, sample_weight=sample_weight, **kwargs)
         kw.update(self.kwargs)
         output = self.func(X, **kw)

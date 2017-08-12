@@ -6,7 +6,6 @@ import xarray as xr
 
 from earthio import ElmStore
 from elm.config.tests.fixtures import *
-from elm.pipeline import steps
 
 def make_3d():
     arr = np.random.uniform(0, 1, 100000).reshape(100, 10, 100)
@@ -18,8 +17,8 @@ def make_3d():
                             attrs={})}, attrs={}, add_canvas=False)
 
 
+@pytest.mark.skip('Depends on elm.pipeline.steps')
 def test_ts_probs():
-
     s = steps.TSProbs()
     s.set_params(band='band_1', bin_size=0.5, num_bins=152, log_probs=True)
     orig = make_3d()
@@ -44,8 +43,8 @@ def test_ts_probs():
     assert X4.flat.values.shape[1] == 152
 
 
+@pytest.mark.skip('Depends on elm.pipeline.steps')
 def test_ts_describe():
-
     s = steps.TSDescribe()
     s.set_params(band='band_1', axis=0)
     orig = make_3d()
