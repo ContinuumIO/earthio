@@ -13,7 +13,6 @@ from gdalconst import GA_ReadOnly
 import gdal
 import logging
 
-from earthio.filters.config import import_callable
 from earthio.filters.config.func_signatures import get_args_kwargs_defaults
 
 logger = logging.getLogger(__name__)
