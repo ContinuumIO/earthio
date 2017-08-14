@@ -23,6 +23,7 @@ install:
 script:
   - cd $EARTHIO_BUILD_DIR
   - . activate $EARTHIO_TEST_ENV
+  - conda install -f -c conda-forge gdal # Workaround for install issue
   - py.test -m 'not slow and not requires_elm' -v earthio/tests
   - rm -rf $ELM_EXAMPLE_DATA_PATH/*
 
