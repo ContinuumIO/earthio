@@ -18,14 +18,13 @@ conda config --set always_yes true
 conda install --name root 'conda-build<=3'
 conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null
 
+conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml
+source activate ${EARTHIO_TEST_ENV}
+conda install -f -c conda-forge gdal # Workaround for gdal install issue
 if [ "$EARTHIO_INSTALL_METHOD" = "git" ]; then
-    conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml
-    source activate ${EARTHIO_TEST_ENV}
-    python setup.py develop
+    python setup.py develop --no-deps
 else
     conda build $EARTHIO_CHANNEL_STR --python $PYTHON --numpy $NUMPY conda.recipe
-    conda create --use-local --name $EARTHIO_TEST_ENV $EARTHIO_CHANNEL_STR python=$PYTHON numpy=$NUMPY earthio
-    source activate ${EARTHIO_TEST_ENV}
 fi
 
 if [ -z "$IGNORE_ELM_DATA_DOWNLOAD" ]; then
