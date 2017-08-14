@@ -41,7 +41,6 @@ extra:
     - ioam
     - conda-forge
     - scitools/label/dev
-    - elm
 
   maintainers:
     - Peter Steinberg - Continuum Analytics - psteinberg [at] continuum [dot] io
@@ -53,4 +52,3 @@ test:
 
   requires:
     - pytest
-    - elm

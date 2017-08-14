@@ -10,7 +10,7 @@ import yaml
 
 from sklearn.decomposition import IncrementalPCA
 
-from elm.config.tests.fixtures import *
+from earthio.filters.config.tests.fixtures import *
 from earthio.reshape import *
 from earthio import ElmStore
 from earthio.filters.make_blobs import random_elm_store

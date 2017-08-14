@@ -1,7 +1,7 @@
 source deactivate;
 
 export EARTHIO_BUILD_DIR=`pwd -P`
-export EARTHIO_CHANNEL_STR="${EARTHIO_CHANNEL_STR:- -c ioam -c conda-forge -c scitools/label/dev -c elm }"
+export EARTHIO_CHANNEL_STR="${EARTHIO_CHANNEL_STR:- -c ioam -c conda-forge -c scitools/label/dev }"
 export EARTHIO_TEST_ENV="${EARTHIO_TEST_ENV:-earth-env-test}"
 export EARTHIO_INSTALL_METHOD="${EARTHIO_INSTALL_METHOD:-conda}"
 export ELM_EXAMPLE_DATA_PATH="${ELM_EXAMPLE_DATA_PATH:-${EARTHIO_BUILD_DIR}/../elm-data}";
@@ -17,15 +17,13 @@ if [ -n "$MAKE_MINICONDA" ];then
 fi
 
 conda config --set always_yes true
-conda install --name root conda conda-build
+conda install --name root 'conda-build<=3'
 conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null
 
 if [ "x$EARTHIO_INSTALL_METHOD" = "xgit" ];then
-    set +e
     conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml
     source activate ${EARTHIO_TEST_ENV}
     python setup.py develop
-    set -e
 else
     conda build $EARTHIO_CHANNEL_STR --python $PYTHON --numpy $NUMPY conda.recipe
     conda create --use-local --name $EARTHIO_TEST_ENV $EARTHIO_CHANNEL_STR python=$PYTHON numpy=$NUMPY earthio

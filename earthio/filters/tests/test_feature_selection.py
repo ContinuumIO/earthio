@@ -3,8 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from earthio.elm_store import ElmStore
 import numpy as np
 
-from elm.config.tests.fixtures import *
-#from elm.pipeline import steps
+from earthio.filters.config.tests.fixtures import *
 from earthio.filters.make_blobs import random_elm_store
 from earthio.reshape import *
 

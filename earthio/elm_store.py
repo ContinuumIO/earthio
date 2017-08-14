@@ -196,7 +196,7 @@ class ElmStore(xr.Dataset):
         Returns:
             :(arr, fig): where arr is the 3-D numpy array and fig is the figure
         '''
-        from elm.sample_util.plotting_helpers import plot_3d
+        from earthio.filters.plotting_helpers import plot_3d
         return plot_3d(self, bands, title, scale, axis_labels, **imshow_kwargs)
 
     def __str__(self):

@@ -10,14 +10,11 @@ import pytest
 from sklearn.decomposition import IncrementalPCA
 import xarray as xr
 
-from elm.config.tests.fixtures import *
-from elm.config import DEFAULTS, DEFAULT_TRAIN, ConfigParser
+from earthio.filters.config.tests.fixtures import *
 import earthio.filters.sample_pipeline as pipeline
 from earthio.filters.make_blobs import (random_elm_store,
                                         BANDS,
                                         GEO)
-BASE = copy.deepcopy(DEFAULTS)
-
 
 
 def sampler(**kwargs):
@@ -28,13 +25,13 @@ def sampler(**kwargs):
     return es
 
 
-BASE['data_sources'] ={k:  {'args_list': [()]*10,'sampler': sampler}
-                       for k in DEFAULTS['data_sources']}
-
 @pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps and elm.pipeline.tests.util.tmp_dirs_context')
 def test_pipeline_feature_selection():
+    from elm.config import DEFAULTS, ConfigParser
+    config = copy.deepcopy(DEFAULTS)
+    config['data_sources'] ={k:  {'args_list': [()]*10,'sampler': sampler}
+                             for k in DEFAULTS['data_sources']}
     tag = selection_name = 'variance_selection'
-    config = copy.deepcopy(BASE)
     with tmp_dirs_context(tag) as (train_path, predict_path, cwd):
         for idx, action in enumerate(config['run']):
             if 'train' in action or 'predict' in action:

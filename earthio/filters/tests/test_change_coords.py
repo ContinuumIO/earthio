@@ -6,8 +6,7 @@ import pytest
 
 from sklearn.decomposition import PCA
 
-from elm.config import ConfigParser
-from elm.config.tests.fixtures import *
+from earthio.filters.config.tests.fixtures import *
 from earthio.filters.make_blobs import random_elm_store
 from earthio.reshape import *
 from earthio.elm_store import ElmStore
@@ -40,10 +39,12 @@ def make_config(pipeline, data_source):
             }
 
 
+# TODO: Tests that use this function are skipped, due to elm imports
 def tst_one_pipeline(pipeline,
                      add_na_per_band=0,
                      na_fields_as_str=True,
                      delim='_'):
+    from elm.config import ConfigParser
     from elm.sample_util.sample_pipeline import make_pipeline_steps
     sample = random_elm_store()
     if add_na_per_band:

@@ -1,17 +1,16 @@
 name: earth-env
-
 channels:
+  - gbrener
   - ioam
   - conda-forge
   - scitools/label/dev
-  - elm
-
 dependencies:
   - deap
   - dill
   - gdal
   - iris
   - pytables
+  - pytest
   - python-magic
   - rasterio
   - scikit-image
@@ -22,6 +21,5 @@ dependencies:
   - geoviews
   - paramnb
   - jupyter
-  - elm # only for unit-testing
   - pip:
     - cachey

@@ -201,7 +201,11 @@ class TSDescribe(StepMixin):
 
     def fit_transform(self, X, y=None, sample_weight=None, **kwargs):
         __doc__ = ts_describe.__doc__
-        from elm.pipeline.steps import ModifySample
+        try:
+            from elm.pipeline.steps import ModifySample
+        except ImportError:
+            logger.error('TSDescribe.fit_transform method depends on elm.pipeline.steps.ModifySample')
+            sys.exit(1)
         if not self._kwargs.get('band'):
             raise ValueError("Expected 'band' keyword to TSProbs")
         m = ModifySample(ts_describe, **self._kwargs)

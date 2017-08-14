@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # set to debug, will plot out polygons etc
 _DEBUG = False
 
-from elm.config.tests.fixtures import *
+from earthio.filters.config.tests.fixtures import *
 from earthio.filters.polygon_tools import (points_in_polys,
                                            vec_points_in_polys,
                                            plot_poly,

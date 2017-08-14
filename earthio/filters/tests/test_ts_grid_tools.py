@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 
 from earthio import ElmStore
-from elm.config.tests.fixtures import *
+from earthio.filters.config.tests.fixtures import *
 
 def make_3d():
     arr = np.random.uniform(0, 1, 100000).reshape(100, 10, 100)
