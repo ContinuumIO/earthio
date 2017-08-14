@@ -21,9 +21,11 @@ conda install --name root conda conda-build
 conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null
 
 if [ "x$EARTHIO_INSTALL_METHOD" = "xgit" ];then
+    set +e
     conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml
     source activate ${EARTHIO_TEST_ENV}
     python setup.py develop
+    set -e
 else
     conda build $EARTHIO_CHANNEL_STR --python $PYTHON --numpy $NUMPY conda.recipe
     conda create --use-local --name $EARTHIO_TEST_ENV $EARTHIO_CHANNEL_STR python=$PYTHON numpy=$NUMPY earthio
