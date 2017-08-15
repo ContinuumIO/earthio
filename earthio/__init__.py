@@ -9,3 +9,4 @@ from earthio.util import *
 from earthio.reshape import *
 from earthio.load_array import *
 from earthio.local_file_iterators import *
+from earthio.filters import *

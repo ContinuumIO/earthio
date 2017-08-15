@@ -14,44 +14,34 @@ requirements:
     - setuptools
 
   run:
-    - attrs
-    - bokeh
-    - cartopy
-    - colorcet
-    - dask
-    - datashader
+    - deap
     - dill
-    - geoviews
-    - holoviews
+    - gdal
     - iris
-    - jupyter
-    - krb5
-    - matplotlib
-    - networkx
-    - numba
-    - numpy
-    - pandas
-    - paramnb
-    - pyproj
     - pytables
-    - pytest
-    - python
     - python-magic
-    - rasterio ==1.0a8
-    - requests
-    - scipy
-    - shapely
+    - rasterio
+    - scikit-image
+    - scikit-learn
     - statsmodels
-    - tblib
-    - xarray
-    - yaml
-    - six
+    - colorcet
+    - datashader
+    - geoviews
+    - paramnb
+    - jupyter
 
 about:
   home: http://github.com/ContinuumIO/elm
   license: MIT
 
 extra:
+  channels:
+    - defaults
+    - gbrener
+    - ioam
+    - conda-forge
+    - scitools/label/dev
+
   maintainers:
     - Peter Steinberg - Continuum Analytics - psteinberg [at] continuum [dot] io
     - Greg Brener - Continuum Analytics - gbrener [at] continuum [dot] io
@@ -59,3 +49,6 @@ extra:
 test:
   imports:
     - earthio
+
+  requires:
+    - pytest

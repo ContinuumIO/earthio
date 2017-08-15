@@ -8,38 +8,29 @@ export ELM_EXAMPLE_DATA_PATH="${ELM_EXAMPLE_DATA_PATH:-${EARTHIO_BUILD_DIR}/../e
 export PYTHON=${PYTHON:-3.5}
 export NUMPY=${NUMPY:-1.11}
 
-build_earthio_env() {
-    set -e
+if [ -n "$MAKE_MINICONDA" ]; then
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    bash miniconda.sh -b -f -p $HOME/miniconda
+    export PATH="$HOME/miniconda/bin:$PATH"
+fi
 
-    if [ -n "$MAKE_MINICONDA" ];then
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-        bash miniconda.sh -b -p $HOME/miniconda
-        export PATH="$HOME/miniconda/bin:$PATH"
-    fi
+conda config --set always_yes true
+conda install --name root 'conda-build<=3'
+conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null
 
-    conda config --set always_yes true;
-    conda install --name root conda conda-build;
-    conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null;
+conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml
+source activate ${EARTHIO_TEST_ENV}
+conda install -f -c conda-forge gdal # Workaround for gdal install issue
+if [ "$EARTHIO_INSTALL_METHOD" = "git" ]; then
+    python setup.py develop --no-deps
+else
+    conda build $EARTHIO_CHANNEL_STR --python $PYTHON --numpy $NUMPY conda.recipe
+fi
 
-    if [ "x$EARTHIO_INSTALL_METHOD" = "xgit" ];then
-        conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml
-        source activate ${EARTHIO_TEST_ENV}
-        python setup.py develop
-    else
-        conda build $EARTHIO_CHANNEL_STR --python $PYTHON --numpy $NUMPY conda.recipe
-        conda create --use-local --name $EARTHIO_TEST_ENV $EARTHIO_CHANNEL_STR python=$PYTHON numpy=$NUMPY earthio
-        source activate ${EARTHIO_TEST_ENV}
-    fi
+if [ -z "$IGNORE_ELM_DATA_DOWNLOAD" ]; then
+    conda install -c defaults -c conda-forge requests pbzip2 python-magic
+    mkdir -p $ELM_EXAMPLE_DATA_PATH
+    pushd $ELM_EXAMPLE_DATA_PATH && python "$EARTHIO_BUILD_DIR/scripts/download_test_data.py" --files hdf4.tar.bz2 tif.tar.bz2 && popd
+fi
 
-    if [ "x$IGNORE_ELM_DATA_DOWNLOAD" = "x" ];then
-        conda install -c defaults -c conda-forge requests pbzip2 python-magic
-        mkdir -p $ELM_EXAMPLE_DATA_PATH
-        df -h
-        pushd $ELM_EXAMPLE_DATA_PATH && python "${EARTHIO_BUILD_DIR}/scripts/download_test_data.py" --files hdf4.tar.bz2 tif.tar.bz2  && popd
-        df -h
-    fi
-
-    set +e
-}
-
-build_earthio_env && source activate ${EARTHIO_TEST_ENV} && echo OK
+source activate ${EARTHIO_TEST_ENV} && echo OK
