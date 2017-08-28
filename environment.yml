@@ -7,7 +7,6 @@ channels:
 dependencies:
   - deap
   - dill
-  - gdal =2.1.*
   - iris
   - pytables
   - pytest
