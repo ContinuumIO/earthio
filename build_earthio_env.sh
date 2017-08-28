@@ -20,7 +20,6 @@ conda env remove --name ${EARTHIO_TEST_ENV} &> /dev/null
 
 conda env create -n ${EARTHIO_TEST_ENV} -f environment.yml
 source activate ${EARTHIO_TEST_ENV}
-conda install -f -c conda-forge gdal # Workaround for gdal install issue
 if [ "$EARTHIO_INSTALL_METHOD" = "git" ]; then
     python setup.py develop --no-deps
 else
