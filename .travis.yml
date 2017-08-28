@@ -2,10 +2,6 @@ language: python
 
 dist: trusty
 
-branches:
-  only:
-    - master
-
 env:
   global:
     - EARTHIO_TEST_ENV=earth-test-env
