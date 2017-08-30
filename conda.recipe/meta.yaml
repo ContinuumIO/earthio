@@ -1,53 +1,41 @@
-package:
-  name: earthio
-  version: {{ environ.get('GIT_DESCRIBE_TAG', 'notag') }}
-
-source:
-  path: ..
-
-build:
-  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0)|int }}
-
-requirements:
-  build:
-    - python
-    - setuptools
-
-  run:
-    - deap
-    - dill
-    - iris
-    - pytables
-    - python-magic
-    - rasterio
-    - scikit-image
-    - scikit-learn
-    - statsmodels
-    - colorcet
-    - datashader
-    - geoviews
-    - paramnb
-    - jupyter
-
-about:
-  home: http://github.com/ContinuumIO/elm
-  license: MIT
-
-extra:
-  channels:
-    - defaults
-    - gbrener
-    - ioam
-    - conda-forge
-    - scitools/label/dev
-
-  maintainers:
-    - Peter Steinberg - Continuum Analytics - psteinberg [at] continuum [dot] io
-    - Greg Brener - Continuum Analytics - gbrener [at] continuum [dot] io
-
-test:
-  imports:
-    - earthio
-
-  requires:
-    - pytest
+name: earth-env
+channels:
+  - gbrener
+  - ioam
+  - conda-forge
+  - scitools/label/dev
+dependencies:
+  - attrs
+  - bokeh
+  - cartopy
+  - colorcet
+  - dask
+  - datashader
+  - dill
+  - distributed
+  - geoviews
+  - holoviews
+  - iris
+  - jupyter
+  - krb5
+  - matplotlib
+  - networkx
+  - numba
+  - numpy
+  - pandas
+  - paramnb
+  - pyproj
+  - pytables
+  - pytest
+  - python=3.5
+  - rasterio
+  - requests
+  - scipy
+  - shapely
+  - statsmodels
+  - tblib
+  - xarray
+  - yaml
+  - six
+  - pip:
+      - cachey
