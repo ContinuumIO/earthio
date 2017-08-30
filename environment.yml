@@ -5,20 +5,37 @@ channels:
   - conda-forge
   - scitools/label/dev
 dependencies:
-  - deap
+  - attrs
+  - bokeh
+  - cartopy
+  - colorcet
+  - dask
+  - datashader
   - dill
+  - distributed
+  - geoviews
+  - holoviews
   - iris
+  - jupyter
+  - krb5
+  - matplotlib
+  - networkx
+  - numba
+  - numpy
+  - pandas
+  - paramnb
+  - pyproj
   - pytables
   - pytest
-  - python-magic
+  - python=3.5
   - rasterio
-  - scikit-image
-  - scikit-learn
+  - requests
+  - scipy
+  - shapely
   - statsmodels
-  - colorcet
-  - datashader
-  - geoviews
-  - paramnb
-  - jupyter
+  - tblib
+  - xarray
+  - yaml
+  - six
   - pip:
-    - cachey
+      - cachey
