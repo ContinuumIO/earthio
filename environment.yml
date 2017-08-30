@@ -13,7 +13,6 @@ dependencies:
   - datashader
   - dill
   - distributed
-  - gdal=2.1.*
   - geoviews
   - holoviews
   - iris
