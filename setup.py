@@ -12,6 +12,6 @@ setup(name='earthio',
       description='Readers',
       include_package_data=True,
       install_requires=[],
-      packages=['earthio'],
+      packages=['earthio', 'earthio.filters'],
       package_data={},
       entry_points={})
