@@ -18,8 +18,6 @@ import copy
 import gc
 import logging
 
-import gdal
-from gdalconst import GA_ReadOnly
 import numpy as np
 import xarray as xr
 
@@ -52,6 +50,9 @@ def _nc_str_to_dict(nc_str):
 
 def load_hdf5_meta(datafile):
     '''Load dataset and subdataset metadata from HDF5 file'''
+    import gdal
+    from gdalconst import GA_ReadOnly
+
     f = gdal.Open(datafile, GA_ReadOnly)
     sds = f.GetSubDatasets()
     band_metas = []
@@ -76,6 +77,7 @@ def load_hdf5_meta(datafile):
 
 def load_subdataset(subdataset, attrs, band_spec, **reader_kwargs):
     '''Load a single subdataset'''
+    import gdal
     data_file = gdal.Open(subdataset)
     raster = raster_as_2d(data_file.ReadAsArray(**reader_kwargs))
     #raster = raster.T
@@ -126,6 +128,8 @@ def load_hdf5_array(datafile, meta, band_specs):
     Returns:
         :es: An ElmStore
     '''
+    import gdal
+    from gdalconst import GA_ReadOnly
 
     logger.debug('load_hdf5_array: {}'.format(datafile))
     f = gdal.Open(datafile, GA_ReadOnly)

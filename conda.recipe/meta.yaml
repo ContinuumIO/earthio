@@ -14,21 +14,37 @@ requirements:
     - setuptools
 
   run:
-    - deap
-    - dill
-    - gdal ==2.1.*
-    - iris
-    - pytables
-    - python-magic
-    - rasterio
-    - scikit-image
-    - scikit-learn
-    - statsmodels
+    - attrs
+    - bokeh
+    - cartopy
     - colorcet
+    - dask
     - datashader
+    - dill
+    - distributed
     - geoviews
-    - paramnb
+    - holoviews
+    - iris
     - jupyter
+    - krb5
+    - matplotlib
+    - networkx
+    - numba
+    - numpy
+    - pandas
+    - paramnb
+    - pyproj
+    - pytables
+    - python
+    - rasterio
+    - requests
+    - scipy
+    - shapely
+    - statsmodels
+    - tblib
+    - xarray
+    - yaml
+    - six
 
 about:
   home: http://github.com/ContinuumIO/elm

@@ -13,9 +13,7 @@ import logging
 import numbers
 import re
 
-import gdal
 import numpy as np
-import ogr
 from rasterio.coords import BoundingBox
 import scipy.interpolate as spi
 

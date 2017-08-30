@@ -9,8 +9,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 '''
 from collections import OrderedDict
 
-from gdalconst import GA_ReadOnly
-import gdal
 import logging
 
 from earthio.filters.config.func_signatures import get_args_kwargs_defaults

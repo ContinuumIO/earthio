@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import glob
-import gdal
 import os
 
 import attr
@@ -55,6 +54,7 @@ def test_read_meta(hdf):
 @pytest.mark.skipif(not HDF5_FILES,
                    reason='elm-data repo has not been cloned')
 def test_load_subdataset():
+    import gdal
     f = HDF5_FILES[0]
     _ , band_specs = get_band_specs(f)
     data_file = gdal.Open(f)

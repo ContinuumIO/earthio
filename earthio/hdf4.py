@@ -18,8 +18,6 @@ import copy
 import gc
 import logging
 
-import gdal
-from gdalconst import GA_ReadOnly
 import numpy as np
 import xarray as xr
 
@@ -43,6 +41,8 @@ logger = logging.getLogger(__name__)
 
 def load_hdf4_meta(datafile):
     '''Load meta and band_meta for a datafile'''
+    import gdal
+    from gdalconst import GA_ReadOnly
     f = gdal.Open(datafile, GA_ReadOnly)
     sds = f.GetSubDatasets()
 
@@ -74,6 +74,8 @@ def load_hdf4_array(datafile, meta, band_specs=None):
     Returns:
         :Elmstore: Elmstore of teh hdf4 data
     '''
+    import gdal
+    from gdalconst import GA_ReadOnly
     from earthio import ElmStore
     from earthio.metadata_selection import match_meta
     logger.debug('load_hdf4_array: {}'.format(datafile))
