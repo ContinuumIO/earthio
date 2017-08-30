@@ -16,7 +16,6 @@ requirements:
   run:
     - deap
     - dill
-    - gdal ==2.1.*
     - iris
     - pytables
     - python-magic
