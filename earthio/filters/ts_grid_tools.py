@@ -23,7 +23,7 @@ from scipy.stats import describe
 import xarray as xr
 
 from earthio.filters.step_mixin import StepMixin
-from earthio import ElmStore
+from earthio import MLDataset
 
 
 logger = logging.getLogger(__name__)
@@ -45,14 +45,14 @@ def ts_describe(X, y=None, sample_weight=None, **kwargs):
     that is a 3-D DataArray in X
 
     Parameters:
-        X:  ElmStore or xarray.Dataset
+        X:  MLDataset or xarray.Dataset
         y:  passed through
         sample_weight: passed through
         kwargs: Keywords:
             axis: Integer like 0, 1, 2 to indicate which is the time axis of cube
-            band: The name of the DataArray in ElmStore to run scipy.describe on
+            band: The name of the DataArray in MLDataset to run scipy.describe on
     Returns:
-        X:  ElmStore with DataArray class "flat"
+        X:  MLDataset with DataArray class "flat"
     '''
     band = kwargs['band']
     logger.debug('Start scipy_describe band: {}'.format(band))
@@ -82,7 +82,7 @@ def ts_describe(X, y=None, sample_weight=None, **kwargs):
                               ('band', np.array(cols))],
                       dims=('space', 'band'),
                       attrs=attrs)
-    X_new = ElmStore({'flat': da}, attrs=attrs, add_canvas=False)
+    X_new = MLDataset({'flat': da}, attrs=attrs, add_canvas=False)
     return (X_new, y, sample_weight)
 
 
@@ -91,7 +91,7 @@ def ts_probs(X, y=None, sample_weight=None, **kwargs):
     the time dimension of a 3-D cube DataArray in X
 
     Parameters:
-        X: ElmStore or xarray.Dataset
+        X: MLDataset or xarray.Dataset
         y: passed through
         sample_weight: passed through
         kwargs: Keywords:
@@ -101,7 +101,7 @@ def ts_probs(X, y=None, sample_weight=None, **kwargs):
             num_bins: How many bins
             log_probs: Return probabilities associated with log counts? True / False
     Returns:
-        X: ElmStore with DataArray called flat that has columns composed of:
+        X: MLDataset with DataArray called flat that has columns composed of:
             * log transformed counts (if kwargs["log_probs"]) or
             * counts (if kwargs["counts"])
 
@@ -161,7 +161,7 @@ def ts_probs(X, y=None, sample_weight=None, **kwargs):
                               ('band', np.arange(col_count))],
                       dims=('space', 'band'),
                       attrs=attrs)
-    X_new = ElmStore({'flat': da}, attrs=attrs, add_canvas=False)
+    X_new = MLDataset({'flat': da}, attrs=attrs, add_canvas=False)
     return (X_new, y, sample_weight)
 
 

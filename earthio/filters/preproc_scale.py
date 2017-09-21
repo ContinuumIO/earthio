@@ -10,13 +10,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import copy
 from functools import WRAPPER_ASSIGNMENTS, wraps, partial
 
-from earthio.elm_store import ElmStore
+from xarray_filters.mldataset import MLDataset
 import numpy as np
 import sklearn.feature_selection as skfeat
 import sklearn.preprocessing as skpre
 import xarray as xr
 
-from earthio.filters.config.func_signatures import get_args_kwargs_defaults
+from xarray_filters.func_signatures import get_args_kwargs_defaults
 from earthio.filters.step_mixin import StepMixin
 
 from six import string_types
@@ -31,8 +31,8 @@ class SklearnBase(StepMixin):
         self._estimator = cls(**kw) # init on that class
 
     def require_flat(self, X):
-        if not (isinstance(X, (ElmStore, xr.Dataset)) and hasattr(X, 'flat')):
-            raise ValueError("Expected an earthio.ElmStore or xarray.Dataset with DataArray 'flat' (2-d array with dims [space, band])")
+        if not (isinstance(X, (MLDataset, xr.Dataset)) and hasattr(X, 'flat')):
+            raise ValueError("Expected an earthio.MLDataset or xarray.Dataset with DataArray 'flat' (2-d array with dims [space, band])")
 
     def _filter_kw(self, func, X, y=None, sample_weight=None, **kwargs):
         args, defaults, var_kwargs = get_args_kwargs_defaults(func)
@@ -86,7 +86,7 @@ class SklearnBase(StepMixin):
                             coords=[('space', old_X.flat.space), ('band', band)],
                             dims=old_X.flat.dims,
                             attrs=attrs)
-        return ElmStore({'flat': flat}, attrs=attrs)
+        return MLDataset({'flat': flat}, attrs=attrs)
 
 
 class Binarizer(SklearnBase):

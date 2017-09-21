@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from collections import OrderedDict
 
-from earthio.elm_store import ElmStore
+from xarray_filters.mldataset import MLDataset
 from earthio import xy_canvas
 import numpy as np
 import xarray as xr
@@ -44,14 +44,14 @@ def random_elm_store(bands=None, centers=None, std_devs=None, height=100, width=
                                      dims=('y', 'x'),
                                      attrs=attrs)
     attrs['band_order'] = bands
-    X = ElmStore(es_dict, attrs=attrs)
+    X = MLDataset(es_dict, attrs=attrs)
     if kwargs.get('return_y'):
         return X, y
     return X
 
 
 def make_blobs_elm_store(**make_blobs_kwargs):
-    '''sklearn.datasets.make_blobs - but return ElmStore
+    '''sklearn.datasets.make_blobs - but return MLDataset
     Parameters:
         as_2d_or_3d:       int - 2 or 3 for num dimensions
         make_blobs_kwargs: kwargs for make_blobs, such as:
@@ -65,7 +65,7 @@ def make_blobs_elm_store(**make_blobs_kwargs):
     kwargs = filter_kwargs_to_func(make_blobs, **make_blobs_kwargs)
     arr  = make_blobs(**kwargs)[0]
     band = ['band_{}'.format(idx) for idx in range(arr.shape[1])]
-    es = ElmStore({'flat': xr.DataArray(arr,
+    es = MLDataset({'flat': xr.DataArray(arr,
                   coords=[('space', np.arange(arr.shape[0])),
                           ('band', band)],
                   dims=['space', 'band'],

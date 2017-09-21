@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 import logging
 
-from earthio.filters.config.func_signatures import get_args_kwargs_defaults
+from xarray_filters.func_signatures import get_args_kwargs_defaults
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ def select_from_file(*sampler_args, **kwargs):
         :filename_filter: a function that returns True/False to keep filename. default: None
         :dry_run:  if True, don't actually read file, just return True if accepted. default: False
         :load_meta: Function, typically from earthio, to load metadata. default: None
-        :load_array: Function, typically from earthio, to load ElmStore. default: None
+        :load_array: Function, typically from earthio, to load MLDataset. default: None
         :kwargs: (additional) may contain "reader" such as "hdf4", "tif", "hdf5", "netcdf"
 
     '''

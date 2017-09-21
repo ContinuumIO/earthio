@@ -4,12 +4,12 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from earthio import ElmStore
+from earthio import MLDataset
 from earthio.filters.config.tests.fixtures import *
 
 def make_3d():
     arr = np.random.uniform(0, 1, 100000).reshape(100, 10, 100)
-    return ElmStore({'band_1': xr.DataArray(arr,
+    return MLDataset({'band_1': xr.DataArray(arr,
                             coords=[('time', np.arange(100)),
                                     ('x', np.arange(10)),
                                     ('y',np.arange(100))],

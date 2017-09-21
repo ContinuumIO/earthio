@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA
 from earthio.filters.config.tests.fixtures import *
 from earthio.filters.make_blobs import random_elm_store
 from earthio.reshape import *
-from earthio.elm_store import ElmStore
+from xarray_filters.mldataset import MLDataset
 
 X = random_elm_store()
 
@@ -136,7 +136,7 @@ def modify_sample_example(es, *args, **kwargs):
         new_es[band] = xr.DataArray(v, coords=band_arr.coords, dims=band_arr.dims)
         v2 = (band_arr.T.values / band_arr.values.mean(axis=1)).T
         new_es[band + '_new'] = xr.DataArray(v2, coords=band_arr.coords, dims=band_arr.dims)
-    return ElmStore(new_es, attrs=es.attrs)
+    return MLDataset(new_es, attrs=es.attrs)
 
 
 @pytest.mark.skip('Depends on elm.sample_util.sample_pipeline.make_pipeline_steps')

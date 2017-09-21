@@ -12,7 +12,7 @@ from sklearn.decomposition import IncrementalPCA
 
 from earthio.filters.config.tests.fixtures import *
 from earthio.reshape import *
-from earthio import ElmStore
+from earthio import MLDataset
 from earthio.filters.make_blobs import random_elm_store
 
 X = flatten(random_elm_store())
@@ -20,7 +20,7 @@ X = flatten(random_elm_store())
 def _run_assertions(trans, y, sample_weight):
     assert y is None
     assert sample_weight is None
-    assert isinstance(trans, ElmStore)
+    assert isinstance(trans, MLDataset)
     assert hasattr(trans, 'flat')
     assert tuple(trans.flat.dims) == ('space', 'band')
     assert trans.flat.values.shape[1] == 3

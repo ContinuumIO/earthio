@@ -10,7 +10,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import copy
 import logging
 
-from earthio import ElmStore
+from earthio import MLDataset
 import numpy as np
 import xarray as xr
 
@@ -55,14 +55,14 @@ class Transform(StepMixin):
         fitter_func = getattr(self._estimator, method)
         kw = dict(y=y, sample_weight=sample_weight, **kwargs)
         kw = {k: v for k, v in kw.items() if k in self._params}
-        if isinstance(X, (ElmStore, xr.Dataset)):
+        if isinstance(X, (MLDataset, xr.Dataset)):
             if hasattr(X, 'flat'):
                 XX = X.flat.values
                 space = X.flat.space
             else:
-                raise ValueError("Call elm.pipeline.steps.Flatten() before Transform in pipeline or otherwise use X as an (earthio.ElmStore or xarray.Dataset)")
+                raise ValueError("Call elm.pipeline.steps.Flatten() before Transform in pipeline or otherwise use X as an (earthio.MLDataset or xarray.Dataset)")
         else:
-            raise ValueError('Expected X to be an xarray.Dataset or earthio.ElmStore')
+            raise ValueError('Expected X to be an xarray.Dataset or earthio.MLDataset')
         out = fitter_func(X.flat.values, **kw)
         if 'transform' in method:
             # 'transform' or 'fit_transform' was called
@@ -74,7 +74,7 @@ class Transform(StepMixin):
             attrs = copy.deepcopy(X.attrs)
             attrs.update(X.flat.attrs)
             attrs['band_order'] = band
-            Xnew = ElmStore({'flat': xr.DataArray(out,
+            Xnew = MLDataset({'flat': xr.DataArray(out,
                             coords=coords,
                             dims=X.flat.dims,
                             attrs=attrs)},

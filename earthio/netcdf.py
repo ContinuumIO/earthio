@@ -24,7 +24,7 @@ from earthio.util import (geotransform_to_bounds,
                           VALID_X_NAMES, VALID_Y_NAMES,
                           take_geo_transform_from_meta,
                           meta_strings_to_dict)
-from earthio import ElmStore
+from earthio import MLDataset
 from earthio.metadata_selection import match_meta
 from six import string_types
 
@@ -114,7 +114,7 @@ def load_netcdf_array(datafile, meta, band_specs=None):
         :variables: dict<str:str>, list<str>: list of variables to load
 
     Returns:
-        :new_es: ElmStore xarray.Dataset
+        :new_es: MLDataset xarray.Dataset
     '''
     logger.debug('load_netcdf_array: {}'.format(datafile))
     ds = xr.open_dataset(datafile)
@@ -137,7 +137,7 @@ def load_netcdf_array(datafile, meta, band_specs=None):
     for b, sub_dataset_name in zip(meta['band_meta'], data):
         b['geo_transform'] = meta['geo_transform'] = geo_transform
         b['sub_dataset_name'] = sub_dataset_name
-    new_es = ElmStore(data,
+    new_es = MLDataset(data,
                     coords=_normalize_coords(ds),
                     attrs=meta)
     return new_es

@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import copy
 
-from earthio import ElmStore
+from earthio import MLDataset
 from earthio.reshape import *
 import numpy as np
 import pandas as pd
@@ -64,7 +64,7 @@ def test_elm_store_to_flat_to_elm_store():
                               0.0, 4447802.078667,
                               0.0, -926.6254330558334)}
     samp_np = np.random.uniform(0, 1, 20 * 50).reshape((20,50))
-    samp = ElmStore({'sample': xr.DataArray(samp_np,
+    samp = MLDataset({'sample': xr.DataArray(samp_np,
                     coords=[('y', np.arange(20)),('x', np.arange(50))],
                     dims=['y', 'x'],
                     attrs=attrs)}, attrs=attrs)

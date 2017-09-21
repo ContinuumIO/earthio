@@ -2,12 +2,12 @@
 -------------------------
 ``earthio.elm_store``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-``earthio.ElmStore`` inherits from xarray.Dataset to provide named
+``earthio.MLDataset`` inherits from xarray.Dataset to provide named
 "bands" or Datasets for satellite data.
-When an ElmStore is created with a "geo_transform" key/value
+When an MLDataset is created with a "geo_transform" key/value
 in its attrs initialization argument, then an earthio.Canvas
 object is constructed from the geo transform.  The Canvas attribute
-is on each band, or xarray.DataArray, in the ElmStore because bands
+is on each band, or xarray.DataArray, in the MLDataset because bands
 may have different coordinates.
 The Canvas object is used in elm for forcing different bands, DataArrays,
 onto the same coordinate system, for example::
@@ -37,14 +37,14 @@ from earthio.util import (_extract_valid_xyzt,
                           dummy_canvas)
 
 
-__all__ = ['ElmStore', ]
+__all__ = ['MLDataset', ]
 
 logger = logging.getLogger(__name__)
 
 
 
-class ElmStore(xr.Dataset):
-    '''ElmStore, an xarray.Dataset with a canvas attribute
+class MLDataset(xr.Dataset):
+    '''MLDataset, an xarray.Dataset with a canvas attribute
     for rasters as bands and transformations of data for machine
     learning
     Parameters inhertited from xarray.Dataset:
@@ -74,10 +74,10 @@ class ElmStore(xr.Dataset):
             - 'equals': all values and dimensions must be the same.
             - 'identical': all values, dimensions and attributes must be the
               same.
-    Parameters unique to ElmStore are used internally in elm in
+    Parameters unique to MLDataset are used internally in elm in
     :mod:`earthio.reshape`, including :func:`lost_axis` and :func:`add_canvas`.  See also
     :func:`earthio.reshape.inverse_flatten`
-    ElmStore attrs:
+    MLDataset attrs:
         :canvas: earthio.Canvas object for elm.pipeline.steps.SelectCanvas
         :band_order: list of the band names in the order they will appear as columns
                     when steps.Flatten() is called to flatten raster DataArrays
@@ -90,7 +90,7 @@ class ElmStore(xr.Dataset):
     def __init__(self, *args, **kwargs):
         es_kwargs = {k: kwargs.pop(k, v)
                      for k, v in self._es_kwargs.items()}
-        super(ElmStore, self).__init__(*args, **kwargs)
+        super(MLDataset, self).__init__(*args, **kwargs)
         self.attrs['_dummy_canvas'] = not es_kwargs['add_canvas']
         if es_kwargs['add_canvas']:
             self._add_band_order()
@@ -187,7 +187,7 @@ class ElmStore(xr.Dataset):
                 axis_labels=True, **imshow_kwargs):
         '''Plot a true or pseudo color image of 3 bands
         Parameters:
-            :X: ElmStore or xarray.Dataset
+            :X: MLDataset or xarray.Dataset
             :bands: list of 3 band names that are in X
             :title: title for figure
             :scale: divide all values by this (e.g. 2** 16 for uint16)
@@ -200,13 +200,13 @@ class ElmStore(xr.Dataset):
         return plot_3d(self, bands, title, scale, axis_labels, **imshow_kwargs)
 
     def __str__(self):
-        return "ElmStore:\n" + super(ElmStore, self).__str__().replace('xarray', 'elm')
+        return "MLDataset:\n" + super(MLDataset, self).__str__().replace('xarray', 'elm')
 
     def __repr__(self):
-        return "ElmStore:\n" + super(ElmStore, self).__repr__().replace('xarray', 'elm')
+        return "MLDataset:\n" + super(MLDataset, self).__repr__().replace('xarray', 'elm')
 
 
-OK_X_DATA_TYPES = (ElmStore, xr.Dataset, da.Array)
+OK_X_DATA_TYPES = (MLDataset, xr.Dataset, da.Array)
 def check_X_data_type(X):
     if not isinstance(X, OK_X_DATA_TYPES):
         raise ValueError('Expected the return value of fitting function '
@@ -214,4 +214,4 @@ def check_X_data_type(X):
                          '{} but found it was an {}'.format(OK_X_DATA_TYPES, type(X)))
 
 
-__all__ = ['ElmStore', 'check_X_data_type',]
+__all__ = ['MLDataset', 'check_X_data_type',]

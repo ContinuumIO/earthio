@@ -16,7 +16,7 @@ from functools import partial
 import logging
 from pprint import pformat
 
-from earthio.elm_store import ElmStore
+from xarray_filters.mldataset import MLDataset
 from earthio.reshape import flatten as _flatten
 import numpy as np
 import xarray as xr
@@ -24,7 +24,7 @@ from sklearn.utils import check_array as _check_array
 import sklearn.preprocessing as skpre
 import sklearn.feature_selection as skfeat
 
-from earthio.filters.config.func_signatures import get_args_kwargs_defaults
+from xarray_filters.func_signatures import get_args_kwargs_defaults
 from earthio.filters.change_coords import CHANGE_COORDS_ACTIONS
 from earthio.filters.preproc_scale import SKLEARN_PREPROCESSING
 try:
@@ -126,16 +126,16 @@ def final_on_sample_step(fitter,
                          prepare_for='train'):
     '''This is the final transformation before the last estimator
     in a Pipeline is called.  It takes the numpy array for X
-    needed by the estimator from X as an ElmStore
+    needed by the estimator from X as an MLDataset
 
     Parameters:
         :fitter: fit function object
         :model:  the final estimator in a Pipeline
-        :X:      ElmStore with DataArray "flat"
+        :X:      MLDataset with DataArray "flat"
         :fit_kwargs: kwargs to fitter
         :y:      numpy array y if needed
         :sample_weight: numpy array if needed
-        :require_flat: raise an error if the ElmStore has no "flat" band
+        :require_flat: raise an error if the MLDataset has no "flat" band
         :prepare_for:  determines whether y is included in fit_args
 
     Returns
@@ -153,12 +153,12 @@ def final_on_sample_step(fitter,
         fit_kwargs.pop('sample_weight', None)
     if isinstance(X, np.ndarray):
         X_values = X             # numpy array 2-d
-    elif isinstance(X, (ElmStore, xr.Dataset)):
+    elif isinstance(X, (MLDataset, xr.Dataset)):
         if hasattr(X, 'flat'):
             X_values = X.flat.values
         else:
-            logger.info("After running Pipeline, X is not an ElmStore with a DataArray called 'flat' and X is not a numpy array.  Found {}".format(type(X)))
-            logger.info("Trying earthio.reshape:flatten on X. If this fails, try a elm.pipeline.steps:ModifySample step to create ElmStore with 'flat' DataArray")
+            logger.info("After running Pipeline, X is not an MLDataset with a DataArray called 'flat' and X is not a numpy array.  Found {}".format(type(X)))
+            logger.info("Trying earthio.reshape:flatten on X. If this fails, try a elm.pipeline.steps:ModifySample step to create MLDataset with 'flat' DataArray")
             X = _flatten(X)
             X_values = X.flat.values
     else:

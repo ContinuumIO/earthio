@@ -26,5 +26,5 @@ def test_load_array(ftype, filename):
         band_specs = tif_band_specs[:3]
     else:
         band_specs = None
-    assert isinstance(load_array(filename, band_specs=band_specs), ElmStore)
+    assert isinstance(load_array(filename, band_specs=band_specs), MLDataset)
 

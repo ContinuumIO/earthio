@@ -26,13 +26,13 @@ from earthio.metadata_selection import match_meta
 from earthio.util import (geotransform_to_coords,
                           geotransform_to_bounds,
                           SPATIAL_KEYS,
-                          raster_as_2d,
+                          _np_arr_to_coords_dims,
                           READ_ARRAY_KWARGS,
                           take_geo_transform_from_meta,
                           BandSpec,
                           meta_strings_to_dict)
 
-from earthio import ElmStore
+from earthio import MLDataset
 from six import string_types
 
 logger = logging.getLogger(__name__)
@@ -156,7 +156,7 @@ def open_prefilter(filename, meta, **reader_kwargs):
         raise
 
 def load_dir_of_tifs_array(dir_of_tiffs, meta, band_specs=None):
-    '''Return an ElmStore where each subdataset is a DataArray
+    '''Return an MLDataset where each subdataset is a DataArray
 
     Parameters:
         :dir_of_tiffs: directory of GeoTiff files where each is a
@@ -166,7 +166,7 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, band_specs=None):
                     defaulting to reading all subdatasets
                     as bands
     Returns:
-        :X: ElmStore
+        :X: MLDataset
 
     '''
 
@@ -197,35 +197,20 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, band_specs=None):
         if 'window' in reader_kwargs:
             reader_kwargs['window'] = tuple(map(tuple, reader_kwargs['window']))
             # TODO multx, multy should be handled here as well?
-        if reader_kwargs:
-            multy = band_meta['height'] / reader_kwargs.get('height', band_meta['height'])
-            multx = band_meta['width'] / reader_kwargs.get('width', band_meta['width'])
-        else:
-            multx = multy = 1.
-        band_meta.update(reader_kwargs)
-        geo_transform = take_geo_transform_from_meta(band_spec, **attrs)
-        handle, raster = open_prefilter(filename, band_meta, **reader_kwargs)
-        raster = raster_as_2d(raster)
-        if getattr(band_spec, 'stored_coords_order', ['y', 'x'])[0] == 'y':
-            rows, cols = raster.shape
-        else:
-            rows, cols = raster.T.shape
-        if geo_transform is None:
-            band_meta['geo_transform'] = handle.get_transform()
-        else:
-            band_meta['geo_transform'] = geo_transform
-        band_meta['geo_transform'][1]  *= multx
-        band_meta['geo_transform'][-1] *= multy
 
-        coords_x, coords_y = geotransform_to_coords(cols,
-                                                    rows,
-                                                    band_meta['geo_transform'])
-        elm_store_dict[band_name] = xr.DataArray(raster,
-                                                 coords=[('y', coords_y),
-                                                         ('x', coords_x),],
-                                                 dims=native_dims,
+        handle, np_arr = open_prefilter(filename, band_meta, **reader_kwargs)
+        out = _np_arr_to_coords_dims(np_arr,
+                 band_spec,
+                 reader_kwargs,
+                 geo_transform=band_meta.get('geo_transform'),
+                 band_meta=band_meta,
+                 handle=handle)
+        np_arr, coords, dims, canvas, geo_transform = out
+        elm_store_dict[band_name] = xr.DataArray(np_arr,
+                                                 coords=coords,
+                                                 dims=dims,
                                                  attrs=band_meta)
 
         attrs['band_order'].append(band_name)
     gc.collect()
-    return ElmStore(elm_store_dict, attrs=attrs)
+    return MLDataset(elm_store_dict, attrs=attrs)

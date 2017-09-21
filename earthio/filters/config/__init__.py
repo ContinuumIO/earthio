@@ -1,1 +1,1 @@
-from earthio.filters.config.func_signatures import *
+from xarray_filters.func_signatures import *

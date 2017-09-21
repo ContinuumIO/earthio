@@ -3,7 +3,7 @@
 
 ``earthio.load_array``
 ++++++++++++++++++++++++++
-load_array returns an ElmStore for HDF, NetCDF, GeoTiff files
+load_array returns an MLDataset for HDF, NetCDF, GeoTiff files
 '''
 
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -46,7 +46,7 @@ def _find_file_type(filename):
 
 
 def load_array(filename, meta=None, band_specs=None, reader=None):
-    '''Create ElmStore from HDF4 / 5 or NetCDF files or TIF directories
+    '''Create MLDataset from HDF4 / 5 or NetCDF files or TIF directories
 
     Parameters:
         :filename:   filename (HDF4 / 5 or NetCDF) or directory name (TIF)
@@ -55,7 +55,7 @@ def load_array(filename, meta=None, band_specs=None, reader=None):
         :reader:     named reader from earthio - one of:  ('tif', 'hdf4', 'hdf5', 'netcdf')
 
     Returns:
-        :es:         ElmStore (xarray.Dataset) with bands specified by band_specs as DataArrays in "data_vars" attribute
+        :es:         MLDataset (xarray.Dataset) with bands specified by band_specs as DataArrays in "data_vars" attribute
     '''
     ftype = reader or _find_file_type(filename)
     if meta is None:

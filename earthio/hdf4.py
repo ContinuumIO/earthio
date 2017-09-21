@@ -24,7 +24,7 @@ import xarray as xr
 from earthio.util import (geotransform_to_bounds,
                           geotransform_to_coords,
                           row_col_to_xy,
-                          raster_as_2d,
+                          _np_arr_to_coords_dims,
                           Canvas,
                           BandSpec,
                           READ_ARRAY_KWARGS,
@@ -62,7 +62,7 @@ def load_hdf4_meta(datafile):
 
 
 def load_hdf4_array(datafile, meta, band_specs=None):
-    '''Return an ElmStore where each subdataset is a DataArray
+    '''Return an MLDataset where each subdataset is a DataArray
 
     Parameters:
         :datafile: filename
@@ -76,7 +76,7 @@ def load_hdf4_array(datafile, meta, band_specs=None):
     '''
     import gdal
     from gdalconst import GA_ReadOnly
-    from earthio import ElmStore
+    from earthio import MLDataset
     from earthio.metadata_selection import match_meta
     logger.debug('load_hdf4_array: {}'.format(datafile))
     f = gdal.Open(datafile, GA_ReadOnly)
@@ -116,39 +116,26 @@ def load_hdf4_array(datafile, meta, band_specs=None):
             name = band_spec
             geo_transform = None
         reader_kwargs = window_to_gdal_read_kwargs(**reader_kwargs)
-        dat0 = gdal.Open(s[0], GA_ReadOnly)
+        handle = gdal.Open(s[0], GA_ReadOnly)
         band_meta.update(reader_kwargs)
-        raster = raster_as_2d(dat0.ReadAsArray(**reader_kwargs))
-        if geo_transform is None:
-            geo_transform = dat0.GetGeoTransform()
+        np_arr = handle.ReadAsArray(**reader_kwargs)
+        out = _np_arr_to_coords_dims(np_arr,
+                 band_spec,
+                 reader_kwargs,
+                 geo_transform=geo_transform,
+                 band_meta=band_meta,
+                 handle=handle)
+        np_arr, coords, dims, canvas, geo_transform = out
         attrs['geo_transform'] = geo_transform
-        if hasattr(band_spec, 'store_coords_order'):
-            if band_spec.stored_coords_order[0] == 'y':
-                rows, cols = raster.shape
-            else:
-                rows, cols = raster.T.shape
-        else:
-            rows, cols = raster.shape
-        coord_x, coord_y = geotransform_to_coords(cols,
-                                                  rows,
-                                                  geo_transform)
-
-        canvas = Canvas(geo_transform=geo_transform,
-                        buf_xsize=cols,
-                        buf_ysize=rows,
-                        dims=native_dims,
-                        ravel_order='C',
-                        bounds=geotransform_to_bounds(cols, rows, geo_transform))
         attrs['canvas'] = canvas
         elm_store_data[name] = xr.DataArray(raster,
-                               coords=[('y', coord_y),
-                                       ('x', coord_x)],
-                               dims=native_dims,
+                               coords=coords,
+                               dims=dims,
                                attrs=attrs)
 
         band_order.append(name)
-    del dat0
+    del handle
     attrs = copy.deepcopy(attrs)
     attrs['band_order'] = band_order
     gc.collect()
-    return ElmStore(elm_store_data, attrs=attrs)
+    return MLDataset(elm_store_data, attrs=attrs)

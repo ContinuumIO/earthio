@@ -45,7 +45,7 @@ def make_samples_dask(X, y, sample_weight, pipe, args_list, sampler, data_source
     '''Dask graph of sampler calls, used in ensemble and EA methods
 
     Parameters:
-        :X:  ElmStore or None
+        :X:  MLDataset or None
         :y:  numpy array or None
         :sample_weight: numpy array or None
         :args_list: arguments to pass to sampler

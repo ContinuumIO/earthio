@@ -33,6 +33,8 @@ logger = logging.getLogger(__name__)
 SPATIAL_KEYS = ('height', 'width', 'geo_transform', 'bounds')
 
 READ_ARRAY_KWARGS = ('window', 'buf_xsize', 'buf_ysize',)
+
+DEFAULT_COORDS_ORDER = ['y', 'x']
 try:
     unicode
 except NameError:
@@ -168,15 +170,95 @@ def geotransform_to_bounds(buf_xsize, buf_ysize, geo_transform):
     return BoundingBox(left, bottom, right, top)
 
 
-def raster_as_2d(raster):
-    if len(raster.shape) == 3:
-        if raster.shape[0] == 1:
-            return raster[0, :, :]
+
+def _np_arr_to_coords_dims(np_arr,
+                 band_spec,
+                 reader_kwargs,
+                 geo_transform=None,
+                 band_meta=None,
+                 handle=None):
+
+    band_meta = band_meta or OrderedDict()
+    stored_coords_order = getattr(band_spec, 'stored_coords_order', DEFAULT_COORDS_ORDER)
+    yfirst = stored_coords_order[0] == 'y'
+    shp = np_arr.shape
+    if 1 in shp:
+        np_arr = np_arr.squeeze()
+    shp = np_arr.shape
+    extra_dim = None
+    stacks = None
+    if len(shp) == 3:
+        idx = np.argmin(shp)
+        if idx == 0:
+            xyshp = shp[1:]
+        elif idx == 2:
+            xyshp = shp[:-1]
         else:
-            raise ValueError('Did not expect 3-d TIF unless singleton in 0 or 2 dimension')
-    elif len(raster.shape) != 2:
-        raise ValueError('Expected a raster with shape (y, x) or (1, y, x)')
-    return raster
+            xyshp = None
+        extra_dim = idx
+        stacks = shp[idx]
+    elif len(shp) == 2:
+        xyshp = shp
+    else:
+        xyshp = None
+    if xyshp:
+        if yfirst:
+            rows, cols = xyshp
+            dims = ('y', 'x')
+        else:
+            rows, cols = xyshp
+            dims = ('x', 'y')
+        if extra_dim == 0:
+            dims = ('level',) + dims
+        elif extra_dim == 2:
+            dims = dims + ('level')
+    else:
+        dims = tuple('dim_{}'.format(idx) for idx in range(len(shp)))
+    band_meta.update(reader_kwargs)
+    if geo_transform is not None:
+        band_meta['geo_transform'] = geo_transform
+    else:
+        geo_transform = take_geo_transform_from_meta(band_spec, **band_meta)
+        band_meta['geo_transform'] = geo_transform
+    if stored_coords_order[0] == 'y':
+        rows, cols = np_arr.shape
+    else:
+        rows, cols = np_arr.T.shape
+    if reader_kwargs:
+        if 'height' not in band_meta or 'width' not in band_meta:
+            raise ValueError('Expected "height" and "width" keys/values in "band_meta" argument')
+        multy = band_meta['height'] / reader_kwargs.get('height', band_meta['height'])
+        multx = band_meta['width'] / reader_kwargs.get('width', band_meta['width'])
+    else:
+        multx = multy = 1.
+    if geo_transform is None:
+        if not hasattr(handle, 'get_transform'):
+            raise ValueError('Expected file handle with .get_transform method')
+        band_meta['geo_transform'] = handle.get_transform()
+    else:
+        band_meta['geo_transform'] = geo_transform
+    band_meta['geo_transform'][1]  *= multx
+    band_meta['geo_transform'][-1] *= multy
+
+    coords_x, coords_y = geotransform_to_coords(cols,
+                                                rows,
+                                                band_meta['geo_transform'])
+    coords = [('y', coords_y), ('x', coords_x)]
+    if not yfirst:
+        coords = coords[::-1]
+    if stacks:
+        coords_stacks = [('level', np.arange(stacks))]
+    if extra_dim == 0:
+        coords = coords_stacks + coords
+    elif extra_dim == 2:
+        coords += coords_stacks
+    canvas = Canvas(geo_transform=geo_transform,
+                    buf_xsize=cols,
+                    buf_ysize=rows,
+                    dims=dims,
+                    bounds=geotransform_to_bounds(cols, rows, geo_transform),
+                    ravel_order='C')
+    return np_arr, coords, dims, canvas, geo_transform
 
 
 def _validate_dim(valid_names, dims):
@@ -394,10 +476,10 @@ def _set_na_from_valid_range(values, valid_range):
 
 def set_na_from_meta(es, **kwargs):
     '''Set NaNs based on "valid_range" "invalid_range" and/or "missing"
-     in ElmStore attrs or DataArray attrs
+     in MLDataset attrs or DataArray attrs
 
     Parameters:
-        :es: earthio.ElmStore
+        :es: earthio.MLDataset
         :kwargs: ignored
 
     Recursively searches es's attrs for keys loosely matching:

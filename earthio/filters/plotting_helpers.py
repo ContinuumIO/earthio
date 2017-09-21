@@ -16,7 +16,7 @@ def plot_3d(X, bands, title='', scale=None, axis_labels=True,
     '''Plot a true or pseudo color image of 3 bands
 
     Parameters:
-        :X: ElmStore or xarray.Dataset
+        :X: MLDataset or xarray.Dataset
         :bands: list of 3 band names that are in X
         :title: title for figure
         :scale: divide all values by this (e.g. 2\*\* 16 for uint16)

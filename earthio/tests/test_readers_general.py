@@ -37,11 +37,11 @@ def random_elm_store_no_meta(width=100, height=200):
                                 dims=('y', 'x'),
                                 attrs={})
         es[band] = band_arr
-    return ElmStore(es, add_canvas=False)
+    return MLDataset(es, add_canvas=False)
 
 
 def test_flatten_no_meta():
-    '''Tests ElmStore can be flattened / inverse even with no attrs'''
+    '''Tests MLDataset can be flattened / inverse even with no attrs'''
     es = random_elm_store_no_meta()
     flat = flatten(es)
     inv = inverse_flatten(flat)
@@ -51,7 +51,7 @@ def test_flatten_no_meta():
 
 
 def test_na_drop_no_meta():
-    '''Tests ElmStore can be flattened / inverse even with NaNs
+    '''Tests MLDataset can be flattened / inverse even with NaNs
     dropped and no attrs'''
     es = random_elm_store_no_meta()
     flat = flatten(es)

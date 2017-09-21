@@ -4,7 +4,7 @@ from functools import partial
 
 import xarray as xr
 from earthio.filters.change_coords import ModifySample
-from earthio.elm_store import ElmStore
+from xarray_filters.mldataset import MLDataset
 
 from six import PY2
 
@@ -30,7 +30,7 @@ def two_bands_operation(method, X, y=None, sample_weight=None, spec=None, **kwar
         new.attrs.update(band1.attrs)
         es[key] = new
         bands.append(key)
-    Xnew = ElmStore(xr.merge([ElmStore(es, add_canvas=False), X]), add_canvas=False)
+    Xnew = MLDataset(xr.merge([MLDataset(es, add_canvas=False), X]), add_canvas=False)
     xattrs_copy = X.attrs.copy()
     Xnew.attrs.update(xattrs_copy)
     Xnew.attrs['band_order'] = bands

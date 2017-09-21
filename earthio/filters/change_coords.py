@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 '''
 from earthio.reshape import (select_canvas as _select_canvas,
                              drop_na_rows as _drop_na_rows,
-                             ElmStore,
+                             MLDataset,
                              flatten as _flatten,
                              inverse_flatten as _inverse_flatten,
                              Canvas,
@@ -36,7 +36,7 @@ class SelectCanvas(StepMixin):
     '''Reindex all bands (DataArrays) to the coordinates of band given
 
     Parameters:
-        :band:  a string name of a DataArray in the ElmStore's data_vars
+        :band:  a string name of a DataArray in the MLDataset's data_vars
 
     See also:
         :func:`earthio.select_canvas`
@@ -71,7 +71,7 @@ class SelectCanvas(StepMixin):
 
 class Flatten(StepMixin):
     '''
-    flatten an ElmStore from rasters in separate DataArrays to
+    flatten an MLDataset from rasters in separate DataArrays to
     single flat DataArray
 
     See also:
@@ -99,7 +99,7 @@ class Flatten(StepMixin):
         return cls()
 
 class DropNaRows(StepMixin):
-    '''In an ElmStore that has a DataArray flat, drop NA rows
+    '''In an MLDataset that has a DataArray flat, drop NA rows
 
     See Also:
         :class:`earthio.drop_na_rows`
@@ -107,7 +107,7 @@ class DropNaRows(StepMixin):
     '''
     _sp_step = 'drop_na_rows'
     def __init__(self):
-        '''In an ElmStore that has a DataArray flat, drop NA rows
+        '''In an MLDataset that has a DataArray flat, drop NA rows
 
         See also:
             :class:`earthio.drop_na_rows`
@@ -143,7 +143,7 @@ class DropNaRows(StepMixin):
 class InverseFlatten(StepMixin):
     _sp_step = 'inverse_flatten'
     def __init__(self):
-        '''Convert a flattened ElmStore back to separate bands
+        '''Convert a flattened MLDataset back to separate bands
         See also:
             :func:`earthio.inverse_flatten`
             :mod:`earthio.reshape`
