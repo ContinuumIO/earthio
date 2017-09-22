@@ -43,7 +43,7 @@ class SceneDownloader:
         sel = df[(df.path == path)&
                  (df.row == row)&
                  (df.cloudCover < max_cloud)&
-                 (df.cloudCover != -1.)&
+                 (df.cloudCover >= 0)&
                  (df.acquisitionDate.dt.month.isin(months))]
         return sel
 
