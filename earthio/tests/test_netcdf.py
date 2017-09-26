@@ -10,7 +10,7 @@ from earthio.netcdf import load_netcdf_meta, load_netcdf_array
 from earthio.tests.util import (EARTHIO_HAS_EXAMPLES,
                                 NETCDF_FILES,
                                 assertions_on_metadata)
-from earthio.util import BandSpec
+from earthio.util import LayerSpec
 
 if NETCDF_FILES:
     NETCDF_DIR = os.path.dirname(NETCDF_FILES[0])
@@ -57,7 +57,7 @@ def test_read_using_list_of_variables():
         meta = load_netcdf_meta(nc_file)
         ds = load_netcdf_array(nc_file, meta, variables_list)
         _validate_array_test_result(ds)
-        variables_list2 = [BandSpec('', '', v) for v in variables_list]
+        variables_list2 = [LayerSpec('', '', v) for v in variables_list]
         ds = load_netcdf_array(nc_file, meta, variables_list2)
         _validate_array_test_result(ds)
 

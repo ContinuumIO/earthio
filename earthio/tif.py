@@ -29,7 +29,7 @@ from earthio.util import (geotransform_to_coords,
                           _np_arr_to_coords_dims,
                           READ_ARRAY_KWARGS,
                           take_geo_transform_from_meta,
-                          BandSpec,
+                          LayerSpec,
                           meta_strings_to_dict)
 
 from earthio import MLDataset
@@ -64,7 +64,7 @@ def load_tif_meta(filename):
     '''
     r = rio.open(filename, driver='GTiff')
     if r.count != 1:
-        raise ValueError('earthio.tif only reads tif files with 1 band (shape of [1, y, x]). Found {} bands'.format(r.count))
+        raise ValueError('earthio.tif only reads tif files with 1 layer (shape of [1, y, x]). Found {} layers'.format(r.count))
     meta = {'meta': r.meta}
     meta['geo_transform'] = r.get_transform()
     meta['bounds'] = r.bounds
@@ -104,41 +104,41 @@ def array_template(r, meta, **reader_kwargs):
     return np.empty((1, height, width), dtype=dtype)
 
 
-def load_dir_of_tifs_meta(dir_of_tiffs, band_specs=None, **meta):
+def load_dir_of_tifs_meta(dir_of_tiffs, layer_specs=None, **meta):
     '''Load metadata from same-directory GeoTiffs representing
-    different bands of the same image.
+    different layers of the same image.
 
     Parameters:
         :dir_of_tiffs: Directory with GeoTiffs
-        :band_specs:   List of earthio.BandSpec objects
+        :layer_specs:   List of earthio.LayerSpec objects
         :meta:         included in returned metadata'''
     logger.debug('load_dir_of_tif_meta {}'.format(dir_of_tiffs))
     tifs = ls_tif_files(dir_of_tiffs)
     meta = copy.deepcopy(meta)
-    band_order_info = []
-    for band_idx, tif in enumerate(tifs):
-        raster, band_meta = load_tif_meta(tif)
+    layer_order_info = []
+    for layer_idx, tif in enumerate(tifs):
+        raster, layer_meta = load_tif_meta(tif)
 
-        if band_specs:
-            for idx, band_spec in enumerate(band_specs):
-                if (isinstance(band_spec, BandSpec) and match_meta(band_meta, band_spec)) or (isinstance(band_spec, string_types) and band_spec in tif):
-                    band_order_info.append((idx, tif, band_spec, band_meta))
+        if layer_specs:
+            for idx, layer_spec in enumerate(layer_specs):
+                if (isinstance(layer_spec, LayerSpec) and match_meta(layer_meta, layer_spec)) or (isinstance(layer_spec, string_types) and layer_spec in tif):
+                    layer_order_info.append((idx, tif, layer_spec, layer_meta))
                     break
 
         else:
-            band_name = 'band_{}'.format(band_idx)
-            band_order_info.append((band_idx, tif, band_name, band_meta))
+            layer_name = 'layer_{}'.format(layer_idx)
+            layer_order_info.append((layer_idx, tif, layer_name, layer_meta))
 
-    if not band_order_info or (band_specs and (len(band_order_info) != len(band_specs))):
-        logger.debug('len(band_order_info) {}'.format(len(band_order_info)))
-        raise ValueError('Failure to find all bands specified by '
-                         'band_specs with length {}.\n'
+    if not layer_order_info or (layer_specs and (len(layer_order_info) != len(layer_specs))):
+        logger.debug('len(layer_order_info) {}'.format(len(layer_order_info)))
+        raise ValueError('Failure to find all layers specified by '
+                         'layer_specs with length {}.\n'
                          'Found only {} of '
-                         'them.'.format(len(band_specs), len(band_order_info)))
+                         'them.'.format(len(layer_specs), len(layer_order_info)))
     # error if they do not share coords at this point
-    band_order_info.sort(key=lambda x:x[0])
-    meta['band_meta'] = [b[-1] for b in band_order_info]
-    meta['band_order_info'] = [b[:-1] for b in band_order_info]
+    layer_order_info.sort(key=lambda x:x[0])
+    meta['layer_meta'] = [b[-1] for b in layer_order_info]
+    meta['layer_order_info'] = [b[:-1] for b in layer_order_info]
     return meta
 
 def open_prefilter(filename, meta, **reader_kwargs):
@@ -155,39 +155,39 @@ def open_prefilter(filename, meta, **reader_kwargs):
         logger.info('Failed to rasterio.open {}'.format(filename))
         raise
 
-def load_dir_of_tifs_array(dir_of_tiffs, meta, band_specs=None):
+def load_dir_of_tifs_array(dir_of_tiffs, meta, layer_specs=None):
     '''Return an MLDataset where each subdataset is a DataArray
 
     Parameters:
         :dir_of_tiffs: directory of GeoTiff files where each is a
-                      single band raster
+                      single layer raster
         :meta:     meta from earthio.load_dir_of_tifs_meta
-        :band_specs: list of earthio.BandSpec objects,
+        :layer_specs: list of earthio.LayerSpec objects,
                     defaulting to reading all subdatasets
-                    as bands
+                    as layers
     Returns:
         :X: MLDataset
 
     '''
 
     logger.debug('load_dir_of_tifs_array: {}'.format(dir_of_tiffs))
-    band_order_info = meta['band_order_info']
+    layer_order_info = meta['layer_order_info']
     tifs = ls_tif_files(dir_of_tiffs)
     logger.info('Load tif files from {}'.format(dir_of_tiffs))
 
-    if not len(band_order_info):
-        raise ValueError('No matching bands with '
-                         'band_specs {}'.format(band_specs))
+    if not len(layer_order_info):
+        raise ValueError('No matching layers with '
+                         'layer_specs {}'.format(layer_specs))
     native_dims = ('y', 'x')
     elm_store_dict = OrderedDict()
     attrs = {'meta': meta}
-    attrs['band_order'] = []
-    for (idx, filename, band_spec), band_meta in zip(band_order_info, meta['band_meta']):
-        band_name = getattr(band_spec, 'name', band_spec)
-        if not isinstance(band_spec, string_types):
-            reader_kwargs = {k: getattr(band_spec, k)
+    attrs['layer_order'] = []
+    for (idx, filename, layer_spec), layer_meta in zip(layer_order_info, meta['layer_meta']):
+        layer_name = getattr(layer_spec, 'name', layer_spec)
+        if not isinstance(layer_spec, string_types):
+            reader_kwargs = {k: getattr(layer_spec, k)
                              for k in READ_ARRAY_KWARGS
-                             if getattr(band_spec, k)}
+                             if getattr(layer_spec, k)}
         else:
             reader_kwargs = {}
         if 'buf_xsize' in reader_kwargs:
@@ -198,19 +198,19 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, band_specs=None):
             reader_kwargs['window'] = tuple(map(tuple, reader_kwargs['window']))
             # TODO multx, multy should be handled here as well?
 
-        handle, np_arr = open_prefilter(filename, band_meta, **reader_kwargs)
+        handle, np_arr = open_prefilter(filename, layer_meta, **reader_kwargs)
         out = _np_arr_to_coords_dims(np_arr,
-                 band_spec,
+                 layer_spec,
                  reader_kwargs,
-                 geo_transform=band_meta.get('geo_transform'),
-                 band_meta=band_meta,
+                 geo_transform=layer_meta.get('geo_transform'),
+                 layer_meta=layer_meta,
                  handle=handle)
         np_arr, coords, dims, canvas, geo_transform = out
-        elm_store_dict[band_name] = xr.DataArray(np_arr,
+        elm_store_dict[layer_name] = xr.DataArray(np_arr,
                                                  coords=coords,
                                                  dims=dims,
-                                                 attrs=band_meta)
+                                                 attrs=layer_meta)
 
-        attrs['band_order'].append(band_name)
+        attrs['layer_order'].append(layer_name)
     gc.collect()
     return MLDataset(elm_store_dict, attrs=attrs)

@@ -14,14 +14,14 @@ from earthio.hdf5 import (load_hdf5_meta,
 from earthio.tests.util import (EARTHIO_EXAMPLE_DATA_PATH,
                                 HDF5_FILES,
                                 assertions_on_metadata,
-                                assertions_on_band_metadata)
+                                assertions_on_layer_metadata)
 
-from earthio.util import BandSpec
+from earthio.util import LayerSpec
 
 if HDF5_FILES:
     HDF5_DIR = os.path.dirname(HDF5_FILES[0])
 
-def get_band_specs(filename):
+def get_layer_specs(filename):
     if os.path.basename(filename).startswith('3B-MO'):
         sub_dataset_names = ('/precipitation',)
     else:
@@ -33,14 +33,14 @@ def get_band_specs(filename):
                              'precipitationCal',
                              'precipitationUncal',
                              'probabilityLiquidPrecipitation',)
-    band_specs = []
+    layer_specs = []
     for sub in sub_dataset_names:
-        band_specs.append(BandSpec(search_key='sub_dataset_name',
+        layer_specs.append(LayerSpec(search_key='sub_dataset_name',
                                search_value=sub + '$', # line ender regex
                                name=sub,
                                meta_to_geotransform="earthio.util:grid_header_to_geo_transform",
                                stored_coords_order=("x", "y")))
-    return sub_dataset_names, band_specs
+    return sub_dataset_names, layer_specs
 
 
 @pytest.mark.parametrize('hdf', HDF5_FILES or [])
@@ -56,12 +56,12 @@ def test_read_meta(hdf):
 def test_load_subdataset():
     import gdal
     f = HDF5_FILES[0]
-    _ , band_specs = get_band_specs(f)
+    _ , layer_specs = get_layer_specs(f)
     data_file = gdal.Open(f)
     meta = load_hdf5_meta(f)
     data_array = load_subdataset(data_file.GetSubDatasets()[0][0],
-                                 meta['band_meta'][0],
-                                 band_specs[0])
+                                 meta['layer_meta'][0],
+                                 layer_specs[0])
     assert 'canvas' in data_array.attrs.keys()
     assert data_array.data is not None
 
@@ -69,29 +69,29 @@ def test_load_subdataset():
 @pytest.mark.skipif(not HDF5_FILES, reason='elm-data repo has not been cloned')
 @pytest.mark.parametrize('filename', HDF5_FILES)
 def test_read_array(filename):
-    sub_dataset_names, band_specs = get_band_specs(filename)
+    sub_dataset_names, layer_specs = get_layer_specs(filename)
     meta = load_hdf5_meta(filename)
-    es = load_hdf5_array(filename, meta, band_specs)
+    es = load_hdf5_array(filename, meta, layer_specs)
     assert len(es.data_vars) == len(sub_dataset_names)
-    for band in es.data_vars:
-        sample = getattr(es, band)
+    for layer in es.data_vars:
+        sample = getattr(es, layer)
         assert sample.y.size == 1800
         assert sample.x.size == 3600
-        assert len(es.data_vars) == len(band_specs)
-        assertions_on_band_metadata(sample.attrs)
+        assert len(es.data_vars) == len(layer_specs)
+        assertions_on_layer_metadata(sample.attrs)
 
 
 @pytest.mark.skipif(not HDF5_FILES,
                reason='elm-data repo has not been cloned')
 def test_reader_kwargs():
-    sub_dataset_names, band_specs = get_band_specs(HDF5_FILES[0])
-    band_specs_kwargs = []
-    for b in band_specs:
+    sub_dataset_names, layer_specs = get_layer_specs(HDF5_FILES[0])
+    layer_specs_kwargs = []
+    for b in layer_specs:
         b = attr.asdict(b)
         b['buf_xsize'], b['buf_ysize'] = 200, 300
-        band_specs_kwargs.append(BandSpec(**b))
+        layer_specs_kwargs.append(LayerSpec(**b))
     meta = load_hdf5_meta(HDF5_FILES[0])
-    es = load_hdf5_array(HDF5_FILES[0], meta, band_specs_kwargs)
-    for b in es.band_order:
+    es = load_hdf5_array(HDF5_FILES[0], meta, layer_specs_kwargs)
+    for b in es.layer_order:
         assert getattr(es, b).values.shape == (300, 200)
 

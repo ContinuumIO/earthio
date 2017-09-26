@@ -97,14 +97,14 @@ def load_netcdf_meta(datafile):
     attrs = _get_nc_attrs(ras)
     sds = _get_subdatasets(ras)
     meta = {'meta': attrs,
-            'band_meta': sds,
+            'layer_meta': sds,
             'name': datafile,
             'variables': list(ras.variables.keys()),
             }
     return meta_strings_to_dict(meta)
 
 
-def load_netcdf_array(datafile, meta, band_specs=None):
+def load_netcdf_array(datafile, meta, layer_specs=None):
     '''
     Loads metadata for NetCDF
 
@@ -118,23 +118,23 @@ def load_netcdf_array(datafile, meta, band_specs=None):
     '''
     logger.debug('load_netcdf_array: {}'.format(datafile))
     ds = xr.open_dataset(datafile)
-    if band_specs:
+    if layer_specs:
         data = []
-        if isinstance(band_specs, dict):
-            data = { k: ds[getattr(v, 'name', v)] for k, v in band_specs.items() }
-            band_spec = tuple(band_specs.values())[0]
-        if isinstance(band_specs, (list, tuple)):
+        if isinstance(layer_specs, dict):
+            data = { k: ds[getattr(v, 'name', v)] for k, v in layer_specs.items() }
+            layer_spec = tuple(layer_specs.values())[0]
+        if isinstance(layer_specs, (list, tuple)):
             data = {getattr(v, 'name', v): ds[getattr(v, 'name', v)]
-                    for v in band_specs }
-            band_spec = band_specs[0]
+                    for v in layer_specs }
+            layer_spec = layer_specs[0]
         data = OrderedDict(data)
     else:
         data = OrderedDict([(v, ds[v]) for v in meta['variables']])
-        band_spec = None
-    geo_transform = take_geo_transform_from_meta(band_spec=band_spec,
+        layer_spec = None
+    geo_transform = take_geo_transform_from_meta(layer_spec=layer_spec,
                                                  required=True,
                                                  **meta)
-    for b, sub_dataset_name in zip(meta['band_meta'], data):
+    for b, sub_dataset_name in zip(meta['layer_meta'], data):
         b['geo_transform'] = meta['geo_transform'] = geo_transform
         b['sub_dataset_name'] = sub_dataset_name
     new_es = MLDataset(data,

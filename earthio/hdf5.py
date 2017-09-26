@@ -24,7 +24,7 @@ import xarray as xr
 from earthio.util import (geotransform_to_bounds,
                           geotransform_to_coords,
                           Canvas,
-                          BandSpec,
+                          LayerSpec,
                           row_col_to_xy,
                           _np_arr_to_coords_dims,
                           READ_ARRAY_KWARGS,
@@ -55,15 +55,15 @@ def load_hdf5_meta(datafile):
 
     f = gdal.Open(datafile, GA_ReadOnly)
     sds = f.GetSubDatasets()
-    band_metas = []
+    layer_metas = []
     for s in sds:
         f2 = gdal.Open(s[0], GA_ReadOnly)
         bm = dict()
         for k, v in f2.GetMetadata().items():
             vals = _nc_str_to_dict(v)
             bm.update(vals)
-        band_metas.append(bm)
-        band_metas[-1]['sub_dataset_name'] = s[0]
+        layer_metas.append(bm)
+        layer_metas[-1]['sub_dataset_name'] = s[0]
 
     meta = dict()
     for k, v in f.GetMetadata().items():
@@ -71,20 +71,20 @@ def load_hdf5_meta(datafile):
         meta.update(vals)
 
     return meta_strings_to_dict(dict(meta=meta,
-                                band_meta=band_metas,
+                                layer_meta=layer_metas,
                                 sub_datasets=sds,
                                 name=datafile))
 
-def load_subdataset(subdataset, attrs, band_spec, **reader_kwargs):
+def load_subdataset(subdataset, attrs, layer_spec, **reader_kwargs):
     '''Load a single subdataset'''
     import gdal
     data_file = gdal.Open(subdataset)
     np_arr = data_file.ReadAsArray(**reader_kwargs)
     out = _np_arr_to_coords_dims(np_arr,
-                 band_spec,
+                 layer_spec,
                  reader_kwargs,
                  geo_transform=None,
-                 band_meta=band_meta,
+                 layer_meta=layer_meta,
                  handle=handle)
     np_arr, coords, dims, canvas, geo_transform = out
     attrs['canvas'] = canvas
@@ -96,15 +96,15 @@ def load_subdataset(subdataset, attrs, band_spec, **reader_kwargs):
                         attrs=attrs)
 
 
-def load_hdf5_array(datafile, meta, band_specs):
+def load_hdf5_array(datafile, meta, layer_specs):
     '''Return an MLDataset where each subdataset is a DataArray
 
     Parameters:
         :datafile: filename
         :meta:     meta from earthio.load_hdf5_meta
-        :band_specs: list of earthio.BandSpec objects,
+        :layer_specs: list of earthio.LayerSpec objects,
                     defaulting to reading all subdatasets
-                    as bands
+                    as layers
 
     Returns:
         :es: An MLDataset
@@ -115,40 +115,40 @@ def load_hdf5_array(datafile, meta, band_specs):
     logger.debug('load_hdf5_array: {}'.format(datafile))
     f = gdal.Open(datafile, GA_ReadOnly)
     sds = meta['sub_datasets']
-    band_metas = meta['band_meta']
-    band_order_info = []
-    for band_idx, (band_meta, sd) in enumerate(zip(band_metas, sds)):
-        if band_specs:
-            for idx, bs in enumerate(band_specs):
-                if match_meta(band_meta, bs):
-                    band_order_info.append((idx, band_meta, sd, bs))
+    layer_metas = meta['layer_meta']
+    layer_order_info = []
+    for layer_idx, (layer_meta, sd) in enumerate(zip(layer_metas, sds)):
+        if layer_specs:
+            for idx, bs in enumerate(layer_specs):
+                if match_meta(layer_meta, bs):
+                    layer_order_info.append((idx, layer_meta, sd, bs))
                     break
         else:
-            band_order_info.append((band_idx, band_meta, sd, 'band_{}'.format(band_idx)))
+            layer_order_info.append((layer_idx, layer_meta, sd, 'layer_{}'.format(layer_idx)))
 
-    if band_specs and len(band_order_info) != len(band_specs):
-        raise ValueError('Number of bands matching band_specs {} was not equal '
-                         'to the number of band_specs {}'.format(len(band_order_info), len(band_specs)))
+    if layer_specs and len(layer_order_info) != len(layer_specs):
+        raise ValueError('Number of layers matching layer_specs {} was not equal '
+                         'to the number of layer_specs {}'.format(len(layer_order_info), len(layer_specs)))
 
-    band_order_info.sort(key=lambda x:x[0])
+    layer_order_info.sort(key=lambda x:x[0])
     elm_store_data = OrderedDict()
-    band_order = []
-    for _, band_meta, sd, band_spec in band_order_info:
-        if isinstance(band_spec, BandSpec):
-            name = band_spec.name
-            reader_kwargs = {k: getattr(band_spec, k)
+    layer_order = []
+    for _, layer_meta, sd, layer_spec in layer_order_info:
+        if isinstance(layer_spec, LayerSpec):
+            name = layer_spec.name
+            reader_kwargs = {k: getattr(layer_spec, k)
                              for k in READ_ARRAY_KWARGS
-                             if getattr(band_spec, k)}
+                             if getattr(layer_spec, k)}
         else:
             reader_kwargs = {}
-            name = band_spec
+            name = layer_spec
         reader_kwargs = window_to_gdal_read_kwargs(**reader_kwargs)
         attrs = copy.deepcopy(meta)
-        attrs.update(copy.deepcopy(band_meta))
-        elm_store_data[name] = load_subdataset(sd[0], attrs, band_spec, **reader_kwargs)
+        attrs.update(copy.deepcopy(layer_meta))
+        elm_store_data[name] = load_subdataset(sd[0], attrs, layer_spec, **reader_kwargs)
 
-        band_order.append(name)
+        layer_order.append(name)
     attrs = copy.deepcopy(attrs)
-    attrs['band_order'] = band_order
+    attrs['layer_order'] = layer_order
     gc.collect()
     return MLDataset(elm_store_data, attrs=attrs)

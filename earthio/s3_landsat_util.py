@@ -82,7 +82,7 @@ class SceneDownloader:
             raise
 
 
-    def download_all_bands(self, download_url):
+    def download_all_layers(self, download_url):
         urls = self.get_urls_on_index_page(download_url)
         local_files = [self.local_file_for_url(url) for url in urls]
         for url, fname in zip(urls, local_files):
