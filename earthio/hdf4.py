@@ -24,9 +24,9 @@ import xarray as xr
 from earthio.util import (geotransform_to_bounds,
                           geotransform_to_coords,
                           row_col_to_xy,
-                          raster_as_2d,
+                          _np_arr_to_coords_dims,
                           Canvas,
-                          BandSpec,
+                          LayerSpec,
                           READ_ARRAY_KWARGS,
                           take_geo_transform_from_meta,
                           window_to_gdal_read_kwargs,
@@ -40,115 +40,102 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 def load_hdf4_meta(datafile):
-    '''Load meta and band_meta for a datafile'''
+    '''Load meta and layer_meta for a datafile'''
     import gdal
     from gdalconst import GA_ReadOnly
     f = gdal.Open(datafile, GA_ReadOnly)
     sds = f.GetSubDatasets()
 
     dat0 = gdal.Open(sds[0][0], GA_ReadOnly)
-    band_metas = []
+    layer_metas = []
     for s in sds:
         f2 = gdal.Open(s[0], GA_ReadOnly)
-        band_metas.append(f2.GetMetadata())
-        band_metas[-1]['sub_dataset_name'] = s[0]
+        layer_metas.append(f2.GetMetadata())
+        layer_metas[-1]['sub_dataset_name'] = s[0]
     meta = {
              'meta': f.GetMetadata(),
-             'band_meta': band_metas,
+             'layer_meta': layer_metas,
              'sub_datasets': sds,
              'name': datafile,
             }
     return meta_strings_to_dict(meta)
 
 
-def load_hdf4_array(datafile, meta, band_specs=None):
-    '''Return an ElmStore where each subdataset is a DataArray
+def load_hdf4_array(datafile, meta, layer_specs=None):
+    '''Return an MLDataset where each subdataset is a DataArray
 
     Parameters:
         :datafile: filename
         :meta:     meta from earthio.load_hdf4_meta
-        :band_specs: list of earthio.BandSpec objects,
+        :layer_specs: list of earthio.LayerSpec objects,
                     defaulting to reading all subdatasets
-                    as bands
+                    as layers
 
     Returns:
         :Elmstore: Elmstore of teh hdf4 data
     '''
     import gdal
     from gdalconst import GA_ReadOnly
-    from earthio import ElmStore
+    from earthio import MLDataset
     from earthio.metadata_selection import match_meta
     logger.debug('load_hdf4_array: {}'.format(datafile))
     f = gdal.Open(datafile, GA_ReadOnly)
 
     sds = meta['sub_datasets']
-    band_metas = meta['band_meta']
-    band_order_info = []
-    if band_specs:
-        for band_meta, s in zip(band_metas, sds):
-            for idx, band_spec in enumerate(band_specs):
-                if match_meta(band_meta, band_spec):
-                    band_order_info.append((idx, band_meta, s, band_spec))
+    layer_metas = meta['layer_meta']
+    layer_order_info = []
+    if layer_specs:
+        for layer_meta, s in zip(layer_metas, sds):
+            for idx, layer_spec in enumerate(layer_specs):
+                if match_meta(layer_meta, layer_spec):
+                    layer_order_info.append((idx, layer_meta, s, layer_spec))
                     break
 
-        band_order_info.sort(key=lambda x:x[0])
-        if not len(band_order_info):
-            raise ValueError('No matching bands with '
-                             'band_specs {}'.format(band_specs))
+        layer_order_info.sort(key=lambda x:x[0])
+        if not len(layer_order_info):
+            raise ValueError('No matching layers with '
+                             'layer_specs {}'.format(layer_specs))
     else:
-        band_order_info = [(idx, band_meta, s, 'band_{}'.format(idx))
-                           for idx, (band_meta, s) in enumerate(zip(band_metas, sds))]
+        layer_order_info = [(idx, layer_meta, s, 'layer_{}'.format(idx))
+                           for idx, (layer_meta, s) in enumerate(zip(layer_metas, sds))]
     native_dims = ('y', 'x')
     elm_store_data = OrderedDict()
 
-    band_order = []
-    for _, band_meta, s, band_spec in band_order_info:
+    layer_order = []
+    for _, layer_meta, s, layer_spec in layer_order_info:
         attrs = copy.deepcopy(meta)
-        attrs.update(copy.deepcopy(band_meta))
-        if isinstance(band_spec, BandSpec):
-            name = band_spec.name
-            reader_kwargs = {k: getattr(band_spec, k)
+        attrs.update(copy.deepcopy(layer_meta))
+        if isinstance(layer_spec, LayerSpec):
+            name = layer_spec.name
+            reader_kwargs = {k: getattr(layer_spec, k)
                              for k in READ_ARRAY_KWARGS
-                             if getattr(band_spec, k)}
-            geo_transform = take_geo_transform_from_meta(band_spec, **attrs)
+                             if getattr(layer_spec, k)}
+            geo_transform = take_geo_transform_from_meta(layer_spec, **attrs)
         else:
             reader_kwargs = {}
-            name = band_spec
+            name = layer_spec
             geo_transform = None
         reader_kwargs = window_to_gdal_read_kwargs(**reader_kwargs)
-        dat0 = gdal.Open(s[0], GA_ReadOnly)
-        band_meta.update(reader_kwargs)
-        raster = raster_as_2d(dat0.ReadAsArray(**reader_kwargs))
-        if geo_transform is None:
-            geo_transform = dat0.GetGeoTransform()
+        handle = gdal.Open(s[0], GA_ReadOnly)
+        layer_meta.update(reader_kwargs)
+        np_arr = handle.ReadAsArray(**reader_kwargs)
+        out = _np_arr_to_coords_dims(np_arr,
+                 layer_spec,
+                 reader_kwargs,
+                 geo_transform=geo_transform,
+                 layer_meta=layer_meta,
+                 handle=handle)
+        np_arr, coords, dims, canvas, geo_transform = out
         attrs['geo_transform'] = geo_transform
-        if hasattr(band_spec, 'store_coords_order'):
-            if band_spec.stored_coords_order[0] == 'y':
-                rows, cols = raster.shape
-            else:
-                rows, cols = raster.T.shape
-        else:
-            rows, cols = raster.shape
-        coord_x, coord_y = geotransform_to_coords(cols,
-                                                  rows,
-                                                  geo_transform)
-
-        canvas = Canvas(geo_transform=geo_transform,
-                        buf_xsize=cols,
-                        buf_ysize=rows,
-                        dims=native_dims,
-                        ravel_order='C',
-                        bounds=geotransform_to_bounds(cols, rows, geo_transform))
         attrs['canvas'] = canvas
         elm_store_data[name] = xr.DataArray(raster,
-                               coords=[('y', coord_y),
-                                       ('x', coord_x)],
-                               dims=native_dims,
+                               coords=coords,
+                               dims=dims,
                                attrs=attrs)
 
-        band_order.append(name)
-    del dat0
+        layer_order.append(name)
+    del handle
     attrs = copy.deepcopy(attrs)
-    attrs['band_order'] = band_order
+    attrs['layer_order'] = layer_order
     gc.collect()
-    return ElmStore(elm_store_data, attrs=attrs)
+    return MLDataset(elm_store_data, attrs=attrs)

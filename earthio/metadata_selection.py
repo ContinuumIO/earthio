@@ -14,7 +14,7 @@ import logging
 import pandas as pd
 import re
 
-from earthio.util import BandSpec
+from earthio.util import LayerSpec
 from six import string_types
 
 logger = logging.getLogger(__name__)
@@ -25,27 +25,27 @@ def _strip_key(k):
             k = k.lower().replace(delim,'')
     return k
 
-def match_meta(meta, band_spec):
+def match_meta(meta, layer_spec):
     '''
     Parmeters:
         :meta: dataset meta information object
-        :band_spec: BandSpec object
+        :layer_spec: LayerSpec object
 
     Returns:
-        :boolean: of whether band_spec matches meta
+        :boolean: of whether layer_spec matches meta
 
     '''
-    if not isinstance(band_spec, BandSpec):
-        raise ValueError('band_spec must be earthio.BandSpec object')
+    if not isinstance(layer_spec, LayerSpec):
+        raise ValueError('layer_spec must be earthio.LayerSpec object')
 
     for mkey in meta:
         key_re_flags = [getattr(re, att)
-                        for att in (band_spec.key_re_flags or [])]
+                        for att in (layer_spec.key_re_flags or [])]
         value_re_flags = [getattr(re, att)
-                        for att in (band_spec.value_re_flags or [])]
+                        for att in (layer_spec.value_re_flags or [])]
 
-        if bool(re.search(band_spec.search_key, mkey, *key_re_flags)):
-            if bool(re.search(band_spec.search_value, meta[mkey], *value_re_flags)):
+        if bool(re.search(layer_spec.search_key, mkey, *key_re_flags)):
+            if bool(re.search(layer_spec.search_value, meta[mkey], *value_re_flags)):
                 return True
     return False
 

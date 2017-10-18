@@ -24,7 +24,7 @@ from six import string_types, PY2
 __all__ = ['Canvas', 'xy_to_row_col', 'row_col_to_xy',
            'geotransform_to_coords', 'geotransform_to_bounds',
            'canvas_to_coords', 'VALID_X_NAMES', 'VALID_Y_NAMES',
-           'xy_canvas','dummy_canvas', 'BandSpec',
+           'xy_canvas','dummy_canvas', 'LayerSpec',
            'set_na_from_meta', 'get_shared_canvas',
            'take_geo_transform_from_meta', 'import_callable',
            'meta_strings_to_dict']
@@ -33,6 +33,8 @@ logger = logging.getLogger(__name__)
 SPATIAL_KEYS = ('height', 'width', 'geo_transform', 'bounds')
 
 READ_ARRAY_KWARGS = ('window', 'buf_xsize', 'buf_ysize',)
+
+DEFAULT_COORDS_ORDER = ['y', 'x']
 try:
     unicode
 except NameError:
@@ -107,7 +109,7 @@ class Canvas(object):
 
 
 @attr.s
-class BandSpec(object):
+class LayerSpec(object):
     search_key = attr.ib()
     search_value = attr.ib()
     name = attr.ib()
@@ -168,15 +170,95 @@ def geotransform_to_bounds(buf_xsize, buf_ysize, geo_transform):
     return BoundingBox(left, bottom, right, top)
 
 
-def raster_as_2d(raster):
-    if len(raster.shape) == 3:
-        if raster.shape[0] == 1:
-            return raster[0, :, :]
+
+def _np_arr_to_coords_dims(np_arr,
+                 layer_spec,
+                 reader_kwargs,
+                 geo_transform=None,
+                 layer_meta=None,
+                 handle=None):
+
+    layer_meta = layer_meta or OrderedDict()
+    stored_coords_order = getattr(layer_spec, 'stored_coords_order', DEFAULT_COORDS_ORDER)
+    yfirst = stored_coords_order[0] == 'y'
+    shp = np_arr.shape
+    if 1 in shp:
+        np_arr = np_arr.squeeze()
+    shp = np_arr.shape
+    extra_dim = None
+    stacks = None
+    if len(shp) == 3:
+        idx = np.argmin(shp)
+        if idx == 0:
+            xyshp = shp[1:]
+        elif idx == 2:
+            xyshp = shp[:-1]
         else:
-            raise ValueError('Did not expect 3-d TIF unless singleton in 0 or 2 dimension')
-    elif len(raster.shape) != 2:
-        raise ValueError('Expected a raster with shape (y, x) or (1, y, x)')
-    return raster
+            xyshp = None
+        extra_dim = idx
+        stacks = shp[idx]
+    elif len(shp) == 2:
+        xyshp = shp
+    else:
+        xyshp = None
+    if xyshp:
+        if yfirst:
+            rows, cols = xyshp
+            dims = ('y', 'x')
+        else:
+            rows, cols = xyshp
+            dims = ('x', 'y')
+        if extra_dim == 0:
+            dims = ('level',) + dims
+        elif extra_dim == 2:
+            dims = dims + ('level')
+    else:
+        dims = tuple('dim_{}'.format(idx) for idx in range(len(shp)))
+    layer_meta.update(reader_kwargs)
+    if geo_transform is not None:
+        layer_meta['geo_transform'] = geo_transform
+    else:
+        geo_transform = take_geo_transform_from_meta(layer_spec, **layer_meta)
+        layer_meta['geo_transform'] = geo_transform
+    if stored_coords_order[0] == 'y':
+        rows, cols = np_arr.shape
+    else:
+        rows, cols = np_arr.T.shape
+    if reader_kwargs:
+        if 'height' not in layer_meta or 'width' not in layer_meta:
+            raise ValueError('Expected "height" and "width" keys/values in "layer_meta" argument')
+        multy = layer_meta['height'] / reader_kwargs.get('height', layer_meta['height'])
+        multx = layer_meta['width'] / reader_kwargs.get('width', layer_meta['width'])
+    else:
+        multx = multy = 1.
+    if geo_transform is None:
+        if not hasattr(handle, 'get_transform'):
+            raise ValueError('Expected file handle with .get_transform method')
+        layer_meta['geo_transform'] = handle.get_transform()
+    else:
+        layer_meta['geo_transform'] = geo_transform
+    layer_meta['geo_transform'][1]  *= multx
+    layer_meta['geo_transform'][-1] *= multy
+
+    coords_x, coords_y = geotransform_to_coords(cols,
+                                                rows,
+                                                layer_meta['geo_transform'])
+    coords = [('y', coords_y), ('x', coords_x)]
+    if not yfirst:
+        coords = coords[::-1]
+    if stacks:
+        coords_stacks = [('level', np.arange(stacks))]
+    if extra_dim == 0:
+        coords = coords_stacks + coords
+    elif extra_dim == 2:
+        coords += coords_stacks
+    canvas = Canvas(geo_transform=geo_transform,
+                    buf_xsize=cols,
+                    buf_ysize=rows,
+                    dims=dims,
+                    bounds=geotransform_to_bounds(cols, rows, geo_transform),
+                    ravel_order='C')
+    return np_arr, coords, dims, canvas, geo_transform
 
 
 def _validate_dim(valid_names, dims):
@@ -219,13 +301,13 @@ def canvas_to_coords(canvas):
 
 
 
-def _extract_valid_xyzt(band_arr):
+def _extract_valid_xyzt(layer_arr):
     validators = (VALID_X_NAMES, VALID_Y_NAMES, VALID_Z_NAMES, VALID_TIME_NAMES)
     output = []
     for valid in validators:
-        name = _validate_dim(valid, band_arr.dims)
+        name = _validate_dim(valid, layer_arr.dims)
         if name:
-            points = getattr(band_arr, name)
+            points = getattr(layer_arr, name)
             output.append((name, points))
         else:
             output.append((None, None))
@@ -261,12 +343,12 @@ def window_to_gdal_read_kwargs(**reader_kwargs):
     return reader_kwargs
 
 
-def take_geo_transform_from_meta(band_spec=None, required=True, **meta):
-    if band_spec and getattr(band_spec, 'meta_to_geotransform', False):
-        func = import_callable(band_spec.meta_to_geotransform)
+def take_geo_transform_from_meta(layer_spec=None, required=True, **meta):
+    if layer_spec and getattr(layer_spec, 'meta_to_geotransform', False):
+        func = import_callable(layer_spec.meta_to_geotransform)
         geo_transform = func(**meta)
         if not isinstance(geo_transform, Sequence) or len(geo_transform) != 6:
-            raise ValueError('band_spec.meta_to_geotransform {} did not return a sequence of len 6'.format(band_spec.meta_to_geotransform))
+            raise ValueError('layer_spec.meta_to_geotransform {} did not return a sequence of len 6'.format(layer_spec.meta_to_geotransform))
         return geo_transform
     elif required:
         geo_transform = grid_header_to_geo_transform(**meta)
@@ -394,10 +476,10 @@ def _set_na_from_valid_range(values, valid_range):
 
 def set_na_from_meta(es, **kwargs):
     '''Set NaNs based on "valid_range" "invalid_range" and/or "missing"
-     in ElmStore attrs or DataArray attrs
+     in MLDataset attrs or DataArray attrs
 
     Parameters:
-        :es: earthio.ElmStore
+        :es: earthio.MLDataset
         :kwargs: ignored
 
     Recursively searches es's attrs for keys loosely matching:
@@ -408,42 +490,42 @@ def set_na_from_meta(es, **kwargs):
 
     Band attributes are also searched.
 
-    For example with ``es.band_1.attrs.valid_range == [0, 1]`` all values in band_1 outside (0, 1)
-    would be NaN. With ``es.attrs.valid_range == [0, 1]`` all values in all bands
+    For example with ``es.layer_1.attrs.valid_range == [0, 1]`` all values in layer_1 outside (0, 1)
+    would be NaN. With ``es.attrs.valid_range == [0, 1]`` all values in all layers
     outside of (0, 1) would be assigned NaN.
 
     '''
     attrs = es.attrs
-    for band in es.data_vars:
-        band_arr = getattr(es, band)
-        if 'int' in str(band_arr.values.dtype):
-            band_arr.values = band_arr.values.astype(np.float32)
-    for idx, band in enumerate(es.data_vars):
-        band_arr = getattr(es, band)
-        val = band_arr.values
-        invalid_range_b = extract_invalid_range(**band_arr.attrs)
+    for layer in es.data_vars:
+        layer_arr = getattr(es, layer)
+        if 'int' in str(layer_arr.values.dtype):
+            layer_arr.values = layer_arr.values.astype(np.float32)
+    for idx, layer in enumerate(es.data_vars):
+        layer_arr = getattr(es, layer)
+        val = layer_arr.values
+        invalid_range_b = extract_invalid_range(**layer_arr.attrs)
         if invalid_range_b is not None:
             logger.debug('Invalid range {}'.format(invalid_range_b))
             _set_invalid_na(val, invalid_range_b)
-        valid_range_b = extract_valid_range(**band_arr.attrs)
+        valid_range_b = extract_valid_range(**layer_arr.attrs)
         if valid_range_b is not None:
             logger.debug('Valid range {}'.format(valid_range_b))
             _set_na_from_valid_range(val, valid_range_b)
-        missing_value_b = extract_missing_value(**band_arr.attrs)
+        missing_value_b = extract_missing_value(**layer_arr.attrs)
         if missing_value_b is not None:
             logger.debug('Missing value {}'.format(missing_value_b))
             val[val == np.array([missing_value_b], dtype=val.dtype)[0]] = np.NaN
 
 
 def get_shared_canvas(es):
-    '''Return a Canvas if all bands (DataArrays) share it, else False'''
+    '''Return a Canvas if all layers (DataArrays) share it, else False'''
     canvas = getattr(es, 'canvas', None)
     if canvas is not None:
         return canvas
     old_canvas = None
     shared = True
-    for band in es.data_vars:
-        canvas = getattr(getattr(es, band), 'canvas', None)
+    for layer in es.data_vars:
+        canvas = getattr(getattr(es, layer), 'canvas', None)
         if canvas == old_canvas or old_canvas is None:
             pass
         else:

@@ -10,7 +10,7 @@ from earthio.tests.util import (TIF_FILES, HDF5_FILES,
 TRIALS = {}
 
 if TIF_FILES:
-    from earthio.tests.test_tif import band_specs as tif_band_specs
+    from earthio.tests.test_tif import layer_specs as tif_layer_specs
     TRIALS['tif'] = os.path.dirname(TIF_FILES[0])
 if HDF4_FILES:
     TRIALS['hdf4'] = HDF4_FILES[0]
@@ -23,8 +23,8 @@ if NETCDF_FILES:
 def test_load_array(ftype, filename):
     if ftype == 'tif':
         # avoid memory trouble
-        band_specs = tif_band_specs[:3]
+        layer_specs = tif_layer_specs[:3]
     else:
-        band_specs = None
-    assert isinstance(load_array(filename, band_specs=band_specs), ElmStore)
+        layer_specs = None
+    assert isinstance(load_array(filename, layer_specs=layer_specs), MLDataset)
 

@@ -20,7 +20,7 @@ import numpy as np
 import scipy.interpolate as spi
 import xarray as xr
 
-from earthio import ElmStore, Canvas
+from earthio import MLDataset, Canvas
 from earthio.util import (canvas_to_coords,
                               VALID_X_NAMES,
                               VALID_Y_NAMES,
@@ -41,27 +41,27 @@ __all__ = ['select_canvas',
            ]
 
 def transpose(es, new_dims):
-    '''Transpose an ElmStore - elm.pipeline.steps.Transpose
+    '''Transpose an MLDataset - elm.pipeline.steps.Transpose
 
     Parameters:
         :new_dims: passed to xarray.DataArray.transpose
     Returns:
-        :ElmStore transposed
+        :MLDataset transposed
     '''
     trans = OrderedDict()
-    for band in es.data_vars:
-        data_arr = getattr(es, band)
+    for layer in es.data_vars:
+        data_arr = getattr(es, layer)
         if not len(set(new_dims) & set(data_arr.dims)) == len(new_dims):
             raise ValueError('At least one of new_dims is not an existing dim (new_dims {}, existing {})'.format(new_dims, data_arr.dims))
-        trans[band] = data_arr.transpose(*new_dims)
-        canvas = attr.asdict(trans[band].canvas)
+        trans[layer] = data_arr.transpose(*new_dims)
+        canvas = attr.asdict(trans[layer].canvas)
         canvas['dims'] = new_dims
-        trans[band].attrs['canvas'] = Canvas(**canvas)
-    return ElmStore(trans, attrs=es.attrs)
+        trans[layer].attrs['canvas'] = Canvas(**canvas)
+    return MLDataset(trans, attrs=es.attrs)
 
 
 def aggregate_simple(es, **kwargs):
-    '''aggregate ElmStore - elm.pipeline.steps.Agg
+    '''aggregate MLDataset - elm.pipeline.steps.Agg
 
     Parameters:
         :kwargs: Keywords may contain
@@ -70,7 +70,7 @@ def aggregate_simple(es, **kwargs):
             - :axis: dimension integer
 
     Returns:
-        :ElmStore: aggregated
+        :MLDataset: aggregated
 
     '''
     func = kwargs['func']
@@ -86,32 +86,32 @@ def aggregate_simple(es, **kwargs):
         raise ValueError('kwargs given to aggregate_simple must include *one* of "dim" or "axis"')
     agged = OrderedDict()
     lost_axes = []
-    for band in es.data_vars:
+    for layer in es.data_vars:
 
-        data_arr = getattr(es, band)
+        data_arr = getattr(es, layer)
         lost_axes.append(data_arr.dims.index(dim) if dim else axis)
-        agged[band] = getattr(data_arr, func)(**kw)
+        agged[layer] = getattr(data_arr, func)(**kw)
     if len(set(lost_axes)) != 1:
-        raise ValueError('Cannot aggregate when the axis (dim) of aggregation is not the same for all DataArrays in ElmStore')
-    return ElmStore(agged, attrs=es.attrs, add_canvas=False, lost_axis=lost_axes[0])
+        raise ValueError('Cannot aggregate when the axis (dim) of aggregation is not the same for all DataArrays in MLDataset')
+    return MLDataset(agged, attrs=es.attrs, add_canvas=False, lost_axis=lost_axes[0])
 
 
 def select_canvas(es, new_canvas):
-    '''reindex_like new_canvas for every band (DataArray) in ElmStore
+    '''reindex_like new_canvas for every layer (DataArray) in MLDataset
 
     Parameters:
-        :es: ElmStore
+        :es: MLDataset
         :new_canvas: an earthio.Canvas object
 
     Returns:
-        :es: ElmStore where every band (DataArray) has the same
+        :es: MLDataset where every layer (DataArray) has the same
             coordinates - those of new_canvas
     '''
     if getattr(es, '_dummy_canvas', False):
-        raise ValueError('This ElmStore cannot be run through select_canvas because geo transform was not read correctly from input data')
+        raise ValueError('This MLDataset cannot be run through select_canvas because geo transform was not read correctly from input data')
     es_new_dict = OrderedDict()
-    for band in es.data_vars:
-        data_arr = getattr(es, band)
+    for layer in es.data_vars:
+        data_arr = getattr(es, layer)
         if data_arr.canvas == new_canvas:
             new_arr = data_arr
             attrs = data_arr.attrs
@@ -129,16 +129,16 @@ def select_canvas(es, new_canvas):
                 shp_order.append(old_dims.index(nd))
             index_to_make = xr.Dataset(new_coords)
             data_arr = data_arr.reindex_like(index_to_make, method='nearest')
-        es_new_dict[band] = data_arr
+        es_new_dict[layer] = data_arr
     attrs = copy.deepcopy(es.attrs)
     attrs['canvas'] = new_canvas
-    es_new = ElmStore(es_new_dict, attrs=attrs)
+    es_new = MLDataset(es_new_dict, attrs=attrs)
 
     return es_new
 
 
 def drop_na_rows(flat):
-    '''Drop any NA rows from ElmStore flat'''
+    '''Drop any NA rows from MLDataset flat'''
     check_is_flat(flat)
     flat_dropped = flat.flat.dropna(dim='space')
     flat_dropped.attrs.update(flat.attrs)
@@ -146,32 +146,32 @@ def drop_na_rows(flat):
     attrs = copy.deepcopy(flat.attrs)
     attrs.update(flat_dropped.attrs)
     attrs['shape_before_drop_na_rows'] = flat.flat.values.shape
-    no_na = ElmStore({'flat': flat_dropped}, attrs=attrs)
+    no_na = MLDataset({'flat': flat_dropped}, attrs=attrs)
     return no_na
 
 
 def flatten(es, ravel_order='C'):
-    '''Given an ElmStore with different rasters (DataArray) as bands,
+    '''Given an MLDataset with different rasters (DataArray) as layers,
     flatten the rasters into a single 2-D DataArray called "flat"
-    in a new ElmStore.
+    in a new MLDataset.
 
     Params:
-        :elm_store:  3-d ElmStore (band, y, x)
+        :elm_store:  3-d MLDataset (layer, y, x)
 
     Returns:
-        :elm_store:  2-d ElmStore (space, band)
+        :elm_store:  2-d MLDataset (space, layer)
     '''
     if check_is_flat(es, raise_err=False):
         return es
     shared_canvas = get_shared_canvas(es)
     if not shared_canvas:
-        raise ValueError('es.select_canvas should be called before flatten when, as in this case, the bands do not all have the same Canvas')
+        raise ValueError('es.select_canvas should be called before flatten when, as in this case, the layers do not all have the same Canvas')
     store = None
-    band_names = [band for idx, band in enumerate(es.band_order)]
+    layer_names = [layer for idx, layer in enumerate(es.layer_order)]
     old_canvases = []
     old_dims = []
-    for idx, band in enumerate(band_names):
-        data_arr = getattr(es, band, None)
+    for idx, layer in enumerate(layer_names):
+        data_arr = getattr(es, layer, None)
         canvas = getattr(data_arr, 'canvas', None)
         old_canvases.append(canvas)
         old_dims.append(data_arr.dims)
@@ -193,11 +193,11 @@ def flatten(es, ravel_order='C'):
     attrs['old_dims'] = old_dims
     attrs['flatten_data_array'] = True
     attrs.update(copy.deepcopy(es.attrs))
-    flat = ElmStore({'flat': xr.DataArray(store,
+    flat = MLDataset({'flat': xr.DataArray(store,
                         coords=[('space', np.arange(store.shape[0])),
-                                ('band', band_names)],
+                                ('layer', layer_names)],
                         dims=('space',
-                              'band'),
+                              'layer'),
                         attrs=attrs)},
                     attrs=attrs)
     return flat
@@ -209,18 +209,18 @@ def filled_flattened(na_dropped):
     shp = getattr(na_dropped, 'shape_before_drop_na_rows', None)
     if not shp:
         return na_dropped
-    shp = (shp[0], len(na_dropped.band_order))
+    shp = (shp[0], len(na_dropped.layer_order))
     filled = np.empty(shp) * np.NaN
     filled[na_dropped.space, :] = na_dropped.flat.values
     attrs = copy.deepcopy(na_dropped.attrs)
     attrs.update(copy.deepcopy(na_dropped.flat.attrs))
     attrs.pop('shape_before_drop_na_rows', None)
     attrs['notnull_shape'] = na_dropped.flat.values.shape
-    band = attrs['band_order']
-    filled_es = ElmStore({'flat': xr.DataArray(filled,
+    layer = attrs['layer_order']
+    filled_es = MLDataset({'flat': xr.DataArray(filled,
                                      coords=[('space', np.arange(shp[0])),
-                                            ('band', band)],
-                                     dims=('space', 'band'),
+                                            ('layer', layer)],
+                                     dims=('space', 'layer'),
                                      attrs=attrs)},
                                 attrs=attrs)
 
@@ -228,17 +228,17 @@ def filled_flattened(na_dropped):
 
 
 def check_is_flat(flat, raise_err=True):
-    '''Check if an ElmStore has a DataArray called flat with dimensions (space, band)
+    '''Check if an MLDataset has a DataArray called flat with dimensions (space, layer)
 
     Parameters:
-        :flat: an ElmStore
+        :flat: an MLDataset
         :raise_err: raise or not
 
     Returns:
         :bool: ``True`` if flat ``False`` or ``ValueError`` if not flat (raise_err=True)
     '''
-    if not hasattr(flat, 'flat') or not all(hasattr(flat.flat, at) for at in ('space', 'band')):
-        msg = 'Expected an ElmStore/Dataset with attribute "flat" and dims ("space", "band")'
+    if not hasattr(flat, 'flat') or not all(hasattr(flat.flat, at) for at in ('space', 'layer')):
+        msg = 'Expected an MLDataset/Dataset with attribute "flat" and dims ("space", "layer")'
         if raise_err:
             raise ValueError(msg)
         else:
@@ -247,16 +247,16 @@ def check_is_flat(flat, raise_err=True):
 
 
 def inverse_flatten(flat, add_canvas=False, **attrs):
-    '''Given an ElmStore that has been flattened to (space, band) dims,
-    return a 3-d ElmStore with dims (band, y, x).  Requires that metadata
-    about x,y dims were preserved when the 2-d input ElmStore was created
+    '''Given an MLDataset that has been flattened to (space, layer) dims,
+    return a 3-d MLDataset with dims (layer, y, x).  Requires that metadata
+    about x,y dims were preserved when the 2-d input MLDataset was created
 
     Params:
-        :flat: a 2-d ElmStore (space, band)
-        :attrs: attribute dict to update the dict of the returned ElmStore
+        :flat: a 2-d MLDataset (space, layer)
+        :attrs: attribute dict to update the dict of the returned MLDataset
 
     Returns:
-        :es:  ElmStore (band, y, x)
+        :es:  MLDataset (layer, y, x)
     '''
     flat = filled_flattened(flat)
     attrs2 = copy.deepcopy(flat.attrs)
@@ -266,14 +266,14 @@ def inverse_flatten(flat, add_canvas=False, **attrs):
         for k, v in a.items():
             if k == 'canvas' and idx == 1: continue
             attrs[k] = v
-    band_list = zip(flat.flat.band_order, flat.old_dims)
+    layer_list = zip(flat.flat.layer_order, flat.old_dims)
     es_new_dict = OrderedDict()
     #raise ValueError(repr(attrs))
     if 'canvas' in attrs:
         new_coords = canvas_to_coords(attrs['canvas'])
     else:
         new_coords = attrs['old_coords']
-    for idx, (band, dims) in enumerate(band_list):
+    for idx, (layer, dims) in enumerate(layer_list):
         if idx >= flat.flat.values.shape[1]:
             break
         new_arr = flat.flat.values[:, idx]
@@ -283,5 +283,5 @@ def inverse_flatten(flat, add_canvas=False, **attrs):
                                 coords=new_coords,
                                 dims=dims,
                                 attrs=attrs)
-        es_new_dict[band] = data_arr
-    return ElmStore(es_new_dict, attrs=attrs, add_canvas=add_canvas)
+        es_new_dict[layer] = data_arr
+    return MLDataset(es_new_dict, attrs=attrs, add_canvas=add_canvas)

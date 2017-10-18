@@ -43,12 +43,19 @@ else:
     NETCDF_FILES = []
 
 def assertions_on_metadata(meta):
-    required_keys = ('meta', 'band_meta')
+    required_keys = ('meta', 'layer_meta')
     for key in required_keys:
         assert key in meta
 
-def assertions_on_band_metadata(band_meta):
+def assertions_on_layer_metadata(layer_meta):
     required_keys = ('sub_dataset_name', )
     for key in required_keys:
-        assert key in band_meta
+        assert key in layer_meta
+
+def random_raster(width=100, height=200):
+    layers = ['layer_1', 'layer_2']
+
+    return ts_clustering_example(n_features=len(layers),
+                                 shape=(height, width),
+                                 layers=layers)
 

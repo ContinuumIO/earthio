@@ -3,7 +3,7 @@
 
 ``earthio.load_array``
 ++++++++++++++++++++++++++
-load_array returns an ElmStore for HDF, NetCDF, GeoTiff files
+load_array returns an MLDataset for HDF, NetCDF, GeoTiff files
 '''
 
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -45,38 +45,38 @@ def _find_file_type(filename):
     return ftype
 
 
-def load_array(filename, meta=None, band_specs=None, reader=None):
-    '''Create ElmStore from HDF4 / 5 or NetCDF files or TIF directories
+def load_array(filename, meta=None, layer_specs=None, reader=None):
+    '''Create MLDataset from HDF4 / 5 or NetCDF files or TIF directories
 
     Parameters:
         :filename:   filename (HDF4 / 5 or NetCDF) or directory name (TIF)
         :meta:       meta data from "filename" already loaded
-        :band_specs: list of strings or earthio.BandSpec objects
+        :layer_specs: list of strings or earthio.LayerSpec objects
         :reader:     named reader from earthio - one of:  ('tif', 'hdf4', 'hdf5', 'netcdf')
 
     Returns:
-        :es:         ElmStore (xarray.Dataset) with bands specified by band_specs as DataArrays in "data_vars" attribute
+        :es:         MLDataset (xarray.Dataset) with layers specified by layer_specs as DataArrays in "data_vars" attribute
     '''
     ftype = reader or _find_file_type(filename)
     if meta is None:
         if ftype == 'tif':
-            meta = _load_meta(filename, ftype, band_specs=band_specs)
+            meta = _load_meta(filename, ftype, layer_specs=layer_specs)
         else:
             meta = _load_meta(filename, ftype)
     if ftype == 'netcdf':
-        return load_netcdf_array(filename, meta, band_specs=band_specs)
+        return load_netcdf_array(filename, meta, layer_specs=layer_specs)
     elif ftype == 'hdf5':
-        return load_hdf5_array(filename, meta, band_specs=band_specs)
+        return load_hdf5_array(filename, meta, layer_specs=layer_specs)
     elif ftype == 'hdf4':
-        return load_hdf4_array(filename, meta, band_specs=band_specs)
+        return load_hdf4_array(filename, meta, layer_specs=layer_specs)
     elif ftype == 'tif':
-        return load_dir_of_tifs_array(filename, meta, band_specs=band_specs)
+        return load_dir_of_tifs_array(filename, meta, layer_specs=layer_specs)
     elif ftype == 'hdf':
         try:
-            es = load_hdf4_array(filename, meta, band_specs=band_specs)
+            es = load_hdf4_array(filename, meta, layer_specs=layer_specs)
         except Exception as e:
             logger.info('NOTE: guessed HDF4 type. Failed: {}. \nTrying HDF5'.format(repr(e)))
-            es = load_hdf5_array(filename, meta, band_specs=band_specs)
+            es = load_hdf5_array(filename, meta, layer_specs=layer_specs)
         return es
 
 
@@ -103,8 +103,8 @@ def load_meta(filename, **kwargs):
 
     Parameters:
         :filename:       filename (HDF4 / 5 and NetCDF) or directory (TIF)
-        :kwargs:         keyword args that may include "band_specs", \
-                        a list of string band names or earthio.BandSpec objects
+        :kwargs:         keyword args that may include "layer_specs", \
+                        a list of string layer names or earthio.LayerSpec objects
 
     Returns:
         :meta:           dict with the following keys
