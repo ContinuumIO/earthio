@@ -4,6 +4,9 @@ channels:
   - ioam
   - conda-forge
   - scitools/label/dev
+  - elm
+  - elm/label/dev
+
 dependencies:
   - attrs
   - bokeh

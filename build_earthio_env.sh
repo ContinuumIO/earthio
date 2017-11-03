@@ -1,4 +1,4 @@
-source deactivate
+which deactivate && source deactivate
 
 export EARTHIO_BUILD_DIR=`pwd -P`
 export EARTHIO_CHANNEL_STR="${EARTHIO_CHANNEL_STR:- -c elm -c elm/label/dev -c ioam -c conda-forge -c scitools/label/dev }"
