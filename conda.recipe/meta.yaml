@@ -36,6 +36,7 @@ requirements:
     - pyproj
     - pytables
     - python
+    - python-magic
     - rasterio
     - requests
     - scipy
