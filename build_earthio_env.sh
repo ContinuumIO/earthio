@@ -1,7 +1,7 @@
 source deactivate
 
 export EARTHIO_BUILD_DIR=`pwd -P`
-export EARTHIO_CHANNEL_STR="${EARTHIO_CHANNEL_STR:- -c ioam -c conda-forge -c scitools/label/dev }"
+export EARTHIO_CHANNEL_STR="${EARTHIO_CHANNEL_STR:- -c elm -c elm/label/dev -c ioam -c conda-forge -c scitools/label/dev }"
 export EARTHIO_TEST_ENV="${EARTHIO_TEST_ENV:-earth-env-test}"
 export EARTHIO_INSTALL_METHOD="${EARTHIO_INSTALL_METHOD:-conda}"
 export ELM_EXAMPLE_DATA_PATH="${ELM_EXAMPLE_DATA_PATH:-${EARTHIO_BUILD_DIR}/../elm-data}";
