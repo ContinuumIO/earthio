@@ -43,6 +43,7 @@ requirements:
     - statsmodels
     - tblib
     - xarray
+    - xarray_filters
     - yaml
     - six
 
