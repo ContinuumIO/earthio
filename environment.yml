@@ -1,6 +1,5 @@
 name: earth-env
 channels:
-  - gbrener
   - ioam
   - conda-forge
   - scitools/label/dev
