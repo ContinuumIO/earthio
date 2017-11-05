@@ -6,7 +6,7 @@ env:
   global:
     - EARTHIO_TEST_ENV=earth-test-env
     - ELM_EXAMPLE_DATA_PATH=/tmp/elm-data
-    - EARTHIO_CHANNEL_STR=" -c ioam -c conda-forge -c scitools/label/dev "
+    - EARTHIO_CHANNEL_STR=" -c ioam -c conda-forge -c scitools/label/dev -c elm -c elm/label/dev "
 
   matrix:
     - PYTHON=3.6 NUMPY=1.12
