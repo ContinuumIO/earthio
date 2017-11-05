@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import glob
 import os
 
-import attr
 import numpy as np
 import pytest
 
@@ -55,12 +54,6 @@ def test_read_array(hdf):
         mean_y = np.mean(sample.y)
         mean_x = np.mean(sample.x)
         layer_names = np.array([b.name for b in layer_specs])
-        assert sorted((mean_x,
-                sample.canvas.bounds.left,
-                sample.canvas.bounds.right))[1] == mean_x
-        assert sorted((mean_y,
-                sample.canvas.bounds.top,
-                sample.canvas.bounds.bottom))[1] == mean_y
         assert sample.y.size == 1200
         assert sample.x.size == 1200
         assert len(es.data_vars) == len(layer_specs)
@@ -74,7 +67,7 @@ def test_read_array(hdf):
 def test_reader_kwargs():
     layer_specs_kwargs = []
     for b in layer_specs:
-        b = attr.asdict(b)
+        b = b.get_params()
         b['buf_xsize'], b['buf_ysize'] = 200, 300
         layer_specs_kwargs.append(LayerSpec(**b))
     meta = load_hdf4_meta(HDF4_FILES[0])

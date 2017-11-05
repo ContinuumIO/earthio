@@ -205,7 +205,8 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, layer_specs=None):
                  geo_transform=layer_meta.get('geo_transform'),
                  layer_meta=layer_meta,
                  handle=handle)
-        np_arr, coords, dims, canvas, geo_transform = out
+        np_arr, coords, dims, arr_attrs = out
+        layer_meta.update(arr_attrs)
         elm_store_dict[layer_name] = xr.DataArray(np_arr,
                                                  coords=coords,
                                                  dims=dims,

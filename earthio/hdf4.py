@@ -25,7 +25,6 @@ from earthio.util import (geotransform_to_bounds,
                           geotransform_to_coords,
                           row_col_to_xy,
                           _np_arr_to_coords_dims,
-                          Canvas,
                           LayerSpec,
                           READ_ARRAY_KWARGS,
                           take_geo_transform_from_meta,
@@ -125,10 +124,9 @@ def load_hdf4_array(datafile, meta, layer_specs=None):
                  geo_transform=geo_transform,
                  layer_meta=layer_meta,
                  handle=handle)
-        np_arr, coords, dims, canvas, geo_transform = out
-        attrs['geo_transform'] = geo_transform
-        attrs['canvas'] = canvas
-        elm_store_data[name] = xr.DataArray(raster,
+        np_arr, coords, dims, attrs2 = out
+        attrs.update(attrs2)
+        elm_store_data[name] = xr.DataArray(np_arr,
                                coords=coords,
                                dims=dims,
                                attrs=attrs)
