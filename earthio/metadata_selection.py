@@ -37,13 +37,16 @@ def match_meta(meta, layer_spec):
     '''
     if not isinstance(layer_spec, LayerSpec):
         raise ValueError('layer_spec must be earthio.LayerSpec object')
-
+    dir_re = dir(re)
     for mkey in meta:
-        key_re_flags = [getattr(re, att)
-                        for att in (layer_spec.key_re_flags or [])]
-        value_re_flags = [getattr(re, att)
-                        for att in (layer_spec.value_re_flags or [])]
-
+        key_re = layer_spec.key_re_flags or []
+        if isinstance(key_re, string_types):
+            key_re = [key_re]
+        value_re = layer_spec.value_re_flags or []
+        if isinstance(value_re, string_types):
+            key_re = [value_re]
+        key_re_flags = [getattr(re, att) for att in (key_re) if att in dir_re]
+        value_re_flags = [getattr(re, att) for att in (value_re) if att in dir_re]
         if bool(re.search(layer_spec.search_key, mkey, *key_re_flags)):
             if bool(re.search(layer_spec.search_value, meta[mkey], *value_re_flags)):
                 return True
