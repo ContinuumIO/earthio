@@ -19,17 +19,11 @@ if HDF4_FILES:
     HDF4_DIR = os.path.dirname(HDF4_FILES[0])
 
 kwargs = {}
-layer_specs = [
-    LayerSpec('long_name', 'Band 1 ', 'layer_1', **kwargs),
-    LayerSpec('long_name', 'Band 2 ', 'layer_2', **kwargs),
-    LayerSpec('long_name', 'Band 3 ', 'layer_3', **kwargs),
-    LayerSpec('long_name', 'Band 4 ', 'layer_4', **kwargs),
-    LayerSpec('long_name', 'Band 5 ', 'layer_5', **kwargs),
-    LayerSpec('long_name', 'Band 7 ', 'layer_7', **kwargs),
-    LayerSpec('long_name', 'Band 8 ', 'layer_8', **kwargs),
-    LayerSpec('long_name', 'Band 10 ', 'layer_10', **kwargs),
-    LayerSpec('long_name', 'Band 11 ', 'layer_11', **kwargs),
-]
+ls = lambda n: LayerSpec(search_key='long_name',
+                         search_value='Band {} '.format(n),
+                         name='layer_{}'.format(n),
+                         **kwargs)
+layer_specs = [ls(n) for n in range(1, 6)]
 
 @pytest.mark.parametrize('hdf', HDF4_FILES or [])
 @pytest.mark.skipif(not HDF4_FILES,

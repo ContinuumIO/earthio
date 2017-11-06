@@ -85,15 +85,16 @@ def load_hdf4_array(datafile, meta, layer_specs=None):
     layer_order_info = []
     if layer_specs:
         for layer_meta, s in zip(layer_metas, sds):
+            #layer_meta['name'] = s[0]
             for idx, layer_spec in enumerate(layer_specs):
                 if match_meta(layer_meta, layer_spec):
                     layer_order_info.append((idx, layer_meta, s, layer_spec))
                     break
 
         layer_order_info.sort(key=lambda x:x[0])
-        if not len(layer_order_info):
+        if len(layer_order_info) != len(layer_specs):
             raise ValueError('No matching layers with '
-                             'layer_specs {}'.format(layer_specs))
+                             'layer_specs {} (meta = {})'.format(layer_specs, layer_meta))
     else:
         layer_order_info = [(idx, layer_meta, s, 'layer_{}'.format(idx))
                            for idx, (layer_meta, s) in enumerate(zip(layer_metas, sds))]

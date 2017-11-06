@@ -44,9 +44,9 @@ def match_meta(meta, layer_spec):
             key_re = [key_re]
         value_re = layer_spec.value_re_flags or []
         if isinstance(value_re, string_types):
-            key_re = [value_re]
-        key_re_flags = [getattr(re, att) for att in (key_re) if att in dir_re]
-        value_re_flags = [getattr(re, att) for att in (value_re) if att in dir_re]
+            value_re = [value_re]
+        key_re_flags = [getattr(re, att) for att in key_re if att in dir_re]
+        value_re_flags = [getattr(re, att) for att in value_re if att in dir_re]
         if bool(re.search(layer_spec.search_key, mkey, *key_re_flags)):
             if bool(re.search(layer_spec.search_value, meta[mkey], *value_re_flags)):
                 return True
