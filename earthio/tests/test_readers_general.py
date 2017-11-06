@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from collections import OrderedDict
 
-import attr
 import numpy as np
 import pytest
 import xarray as xr
@@ -25,36 +24,6 @@ if TIF_FILES:
 else:
     TIF_DIR = tif_layer_specs = None
 
-
-
-def test_flatten_no_meta():
-    '''Tests xr.Dataset can be flattened / inverse even with no attrs'''
-    es = random_raster()
-    flat = flatten(es)
-    inv = inverse_flatten(flat)
-    assert np.all(es.layer_1.values == inv.layer_1.values)
-    assert np.all(es.layer_2.values == inv.layer_2.values)
-    assert np.all(flat.flat.values[:, 0] == es.layer_1.values.ravel(order='C'))
-
-
-def test_na_drop_no_meta():
-    '''Tests xr.Dataset can be flattened / inverse even with NaNs
-    dropped and no attrs'''
-    es = random_raster()
-    flat = flatten(es)
-    flat.flat.values[:3, :] = np.NaN
-    flat.flat.values[10:12, :] = np.NaN
-    na_dropped = drop_na_rows(flat)
-    assert na_dropped.flat.values.shape[0] == flat.flat.values.shape[0] - 5
-    inv = inverse_flatten(na_dropped)
-    flat2 = flatten(inv)
-    val1 = flat.flat.values
-    val2 = flat2.flat.values
-    assert np.all(val1[~np.isnan(val1)] == val2[~np.isnan(val2)])
-    inv2 = inverse_flatten(flat2)
-    val1 = inv.layer_1.values
-    val2 = inv2.layer_1.values
-    assert np.all(val1[~np.isnan(val1)] == val2[~np.isnan(val2)])
 
 @pytest.mark.skipIf(not EARTHIO_HAS_EXAMPLES, reason='test data has not been downloaded')
 @pytest.mark.parametrize('ftype', ('hdf4', 'hdf5', 'tif',))
@@ -83,7 +52,7 @@ def test_reader_kwargs_window(ftype):
         name = b.name
         val = getattr(full_es, name).values
         shp = val.shape
-        b = attr.asdict(b)
+        b = b.get_params()
         b['window'] = windows[name] = (((10, 200), (210, 400)))
         layer_specs_window.append(LayerSpec(**b))
 

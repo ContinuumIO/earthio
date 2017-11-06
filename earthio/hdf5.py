@@ -23,7 +23,6 @@ import xarray as xr
 
 from earthio.util import (geotransform_to_bounds,
                           geotransform_to_coords,
-                          Canvas,
                           LayerSpec,
                           row_col_to_xy,
                           _np_arr_to_coords_dims,
@@ -83,13 +82,11 @@ def load_subdataset(subdataset, attrs, layer_spec, **reader_kwargs):
                  layer_spec,
                  reader_kwargs,
                  geo_transform=None,
-                 layer_meta=layer_meta,
-                 handle=handle)
-    np_arr, coords, dims, canvas, geo_transform = out
-    attrs['canvas'] = canvas
-    attrs['geo_transform'] = geo_transform
-
-    return xr.DataArray(data=raster,
+                 layer_meta=attrs,
+                 handle=data_file)
+    np_arr, coords, dims, attrs2 = out
+    attrs.update(attrs2)
+    return xr.DataArray(data=np_arr,
                         coords=coords,
                         dims=dims,
                         attrs=attrs)
