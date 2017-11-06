@@ -24,8 +24,7 @@ if TIF_FILES:
 
 ls = lambda n: LayerSpec(search_key='name',
                          search_value='_B{}.TIF'.format(n),
-                         name='layer_{}'.format(n),
-                         **kwargs)
+                         name='layer_{}'.format(n))
 layer_specs = [ls(n) for n in (list(range(1, 8)) + list(range(9, 12)))]
 
 @pytest.mark.skipif(not TIF_FILES,
