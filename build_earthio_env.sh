@@ -7,6 +7,7 @@ export EARTHIO_INSTALL_METHOD="${EARTHIO_INSTALL_METHOD:-conda}"
 export ELM_EXAMPLE_DATA_PATH="${ELM_EXAMPLE_DATA_PATH:-${EARTHIO_BUILD_DIR}/../elm-data}";
 export PYTHON=${PYTHON:-3.5}
 export NUMPY=${NUMPY:-1.11}
+export ANACONDA_UPLOAD_USER="${ANACONDA_UPLOAD_USER:-elm}"
 
 if [ -n "$MAKE_MINICONDA" ]; then
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
