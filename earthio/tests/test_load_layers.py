@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 
 import pytest
-
+import xarray as xr
 from earthio import *
 from earthio.tests.util import (TIF_FILES, HDF5_FILES,
                                 HDF4_FILES, NETCDF_FILES)
