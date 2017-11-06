@@ -34,8 +34,9 @@ def test_read_meta():
         raster, meta = load_tif_meta(tif)
         assert hasattr(raster, 'read')
         assert hasattr(raster, 'width')
-        layer_specs_with_layer_8 = layer_specs + [LayerSpec('name', '_B8.TIF', 'layer_8')]
-        meta = load_dir_of_tifs_meta(TIF_DIR, layer_specs_with_layer_8)
+        layer_specs_with_layer_8 = layer_specs + [ls(8)]
+        meta = load_dir_of_tifs_meta(TIF_DIR,
+                                     layer_specs=layer_specs_with_layer_8)
         layer_meta = meta['layer_meta']
         heights_names = [(m['height'], m['name']) for m in layer_meta]
         # layer 8 is panchromatic with 15 m resolution
