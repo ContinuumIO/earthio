@@ -165,7 +165,7 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, layer_specs=None):
                     defaulting to reading all subdatasets
                     as layers
     Returns:
-        :X: xr.Dataset
+        :dset: xr.Dataset
 
     '''
 
