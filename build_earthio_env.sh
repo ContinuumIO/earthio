@@ -28,7 +28,6 @@ else
 fi
 
 if [ -z "$IGNORE_ELM_DATA_DOWNLOAD" ]; then
-    conda install -c conda-forge 'gdal=2.1.*' requests python-magic pytest
     mkdir -p $ELM_EXAMPLE_DATA_PATH
     pushd $ELM_EXAMPLE_DATA_PATH && python "$EARTHIO_BUILD_DIR/scripts/download_test_data.py" --files hdf4.tar.bz2 tif.tar.bz2 && popd
 fi
