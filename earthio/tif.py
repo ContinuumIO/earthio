@@ -6,7 +6,7 @@
 
 Tools for reading GeoTiff files.  Typically use the interface through
 
-    - :func:`earthio.load_array`
+    - :func:`earthio.load_layers`
     - :func:`earthio.`load_meta`
 
 '''
@@ -32,7 +32,6 @@ from earthio.util import (geotransform_to_coords,
                           LayerSpec,
                           meta_strings_to_dict)
 
-from earthio import MLDataset
 from six import string_types
 
 logger = logging.getLogger(__name__)
@@ -156,7 +155,7 @@ def open_prefilter(filename, meta, **reader_kwargs):
         raise
 
 def load_dir_of_tifs_array(dir_of_tiffs, meta, layer_specs=None):
-    '''Return an MLDataset where each subdataset is a DataArray
+    '''Return an xr.Dataset where each subdataset is a xr.DataArray
 
     Parameters:
         :dir_of_tiffs: directory of GeoTiff files where each is a
@@ -166,7 +165,7 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, layer_specs=None):
                     defaulting to reading all subdatasets
                     as layers
     Returns:
-        :X: MLDataset
+        :dset: xr.Dataset
 
     '''
 
@@ -214,4 +213,4 @@ def load_dir_of_tifs_array(dir_of_tiffs, meta, layer_specs=None):
 
         attrs['layer_order'].append(layer_name)
     gc.collect()
-    return MLDataset(elm_store_dict, attrs=attrs)
+    return xr.Dataset(elm_store_dict, attrs=attrs)

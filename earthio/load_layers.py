@@ -1,9 +1,9 @@
 '''
 ------------------
 
-``earthio.load_array``
+``earthio.load_layers``
 ++++++++++++++++++++++++++
-load_array returns an MLDataset for HDF, NetCDF, GeoTiff files
+load_layers returns an xr.Dataset for HDF, NetCDF, GeoTiff files
 '''
 
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -18,7 +18,7 @@ from earthio.hdf4 import load_hdf4_array, load_hdf4_meta
 from earthio.hdf5 import load_hdf5_array, load_hdf5_meta
 from earthio.tif import load_dir_of_tifs_meta,load_dir_of_tifs_array
 
-__all__ = ['load_array', 'load_meta']
+__all__ = ['load_layers', 'load_meta']
 
 EXT = OrderedDict([
     ('netcdf', ('nc', 'nc\d',)),
@@ -45,8 +45,8 @@ def _find_file_type(filename):
     return ftype
 
 
-def load_array(filename, meta=None, layer_specs=None, reader=None):
-    '''Create MLDataset from HDF4 / 5 or NetCDF files or TIF directories
+def load_layers(filename, meta=None, layer_specs=None, reader=None):
+    '''Create xr.Dataset from HDF4 / 5 or NetCDF files or TIF directories
 
     Parameters:
         :filename:   filename (HDF4 / 5 or NetCDF) or directory name (TIF)
@@ -55,7 +55,7 @@ def load_array(filename, meta=None, layer_specs=None, reader=None):
         :reader:     named reader from earthio - one of:  ('tif', 'hdf4', 'hdf5', 'netcdf')
 
     Returns:
-        :es:         MLDataset (xarray.Dataset) with layers specified by layer_specs as DataArrays in "data_vars" attribute
+        :dset:         xr.Dataset with layers specified by layer_specs as xr.DataArray objects in "data_vars" attribute
     '''
     ftype = reader or _find_file_type(filename)
     if meta is None:
@@ -73,11 +73,11 @@ def load_array(filename, meta=None, layer_specs=None, reader=None):
         return load_dir_of_tifs_array(filename, meta, layer_specs=layer_specs)
     elif ftype == 'hdf':
         try:
-            es = load_hdf4_array(filename, meta, layer_specs=layer_specs)
+            dset = load_hdf4_array(filename, meta, layer_specs=layer_specs)
         except Exception as e:
             logger.info('NOTE: guessed HDF4 type. Failed: {}. \nTrying HDF5'.format(repr(e)))
-            es = load_hdf5_array(filename, meta, layer_specs=layer_specs)
-        return es
+            dset = load_hdf5_array(filename, meta, layer_specs=layer_specs)
+        return dset
 
 
 def _load_meta(filename, ftype, **kwargs):

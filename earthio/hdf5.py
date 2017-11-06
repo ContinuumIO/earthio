@@ -6,7 +6,7 @@
 
 Tools for reading HDF5 files.  Typically use the interface through
 
-    - :func:`earthio.load_array`
+    - :func:`earthio.load_layers`
     - :func:`earthio.load_meta`
 
 '''
@@ -31,7 +31,6 @@ from earthio.util import (geotransform_to_bounds,
                           window_to_gdal_read_kwargs,
                           meta_strings_to_dict)
 
-from earthio import MLDataset
 from earthio.metadata_selection import match_meta
 
 __all__ = [
@@ -94,7 +93,7 @@ def load_subdataset(subdataset, attrs, layer_spec, **reader_kwargs):
 
 
 def load_hdf5_array(datafile, meta, layer_specs):
-    '''Return an MLDataset where each subdataset is a DataArray
+    '''Return an xr.Dataset where each subdataset is a xr.DataArray
 
     Parameters:
         :datafile: filename
@@ -104,7 +103,7 @@ def load_hdf5_array(datafile, meta, layer_specs):
                     as layers
 
     Returns:
-        :es: An MLDataset
+        :dset: An xr.Dataset
     '''
     import gdal
     from gdalconst import GA_ReadOnly
@@ -148,4 +147,4 @@ def load_hdf5_array(datafile, meta, layer_specs):
     attrs = copy.deepcopy(attrs)
     attrs['layer_order'] = layer_order
     gc.collect()
-    return MLDataset(elm_store_data, attrs=attrs)
+    return xr.Dataset(elm_store_data, attrs=attrs)

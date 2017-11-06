@@ -50,9 +50,9 @@ def test_read_meta():
                reason='elm-data repo has not been cloned')
 def test_read_array():
     meta = load_dir_of_tifs_meta(TIF_DIR, layer_specs)
-    es = load_dir_of_tifs_array(TIF_DIR, meta, layer_specs)
-    for var in es.data_vars:
-        sample = getattr(es, var)
+    dset = load_dir_of_tifs_array(TIF_DIR, meta, layer_specs)
+    for var in dset.data_vars:
+        sample = getattr(dset, var)
         mean_y = np.mean(sample.y)
         mean_x = np.mean(sample.x)
         layer_names = np.array([b.name for b in layer_specs])
@@ -68,7 +68,7 @@ def test_reader_kwargs():
         b['buf_xsize'], b['buf_ysize'] = 200, 300
         layer_specs_kwargs.append(LayerSpec(**b))
     meta = load_dir_of_tifs_meta(TIF_DIR, layer_specs_kwargs)
-    es = load_dir_of_tifs_array(TIF_DIR, meta, layer_specs_kwargs)
-    for b in es.layer_order:
-        assert getattr(es, b).values.shape == (300, 200)
+    dset = load_dir_of_tifs_array(TIF_DIR, meta, layer_specs_kwargs)
+    for b in dset.layer_order:
+        assert getattr(dset, b).values.shape == (300, 200)
 

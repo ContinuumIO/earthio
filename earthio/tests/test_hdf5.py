@@ -69,13 +69,13 @@ def test_load_subdataset():
 def test_read_array(filename):
     sub_dataset_names, layer_specs = get_layer_specs(filename)
     meta = load_hdf5_meta(filename)
-    es = load_hdf5_array(filename, meta, layer_specs)
-    assert len(es.data_vars) == len(sub_dataset_names)
-    for layer in es.data_vars:
-        sample = getattr(es, layer)
+    dset = load_hdf5_array(filename, meta, layer_specs)
+    assert len(dset.data_vars) == len(sub_dataset_names)
+    for layer in dset.data_vars:
+        sample = getattr(dset, layer)
         assert sample.y.size == 1800
         assert sample.x.size == 3600
-        assert len(es.data_vars) == len(layer_specs)
+        assert len(dset.data_vars) == len(layer_specs)
         assertions_on_layer_metadata(sample.attrs)
 
 
@@ -89,7 +89,7 @@ def test_reader_kwargs():
         b['buf_xsize'], b['buf_ysize'] = 200, 300
         layer_specs_kwargs.append(LayerSpec(**b))
     meta = load_hdf5_meta(HDF5_FILES[0])
-    es = load_hdf5_array(HDF5_FILES[0], meta, layer_specs_kwargs)
-    for b in es.layer_order:
-        assert getattr(es, b).values.shape == (300, 200)
+    dset = load_hdf5_array(HDF5_FILES[0], meta, layer_specs_kwargs)
+    for b in dset.layer_order:
+        assert getattr(dset, b).values.shape == (300, 200)
 

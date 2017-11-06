@@ -43,5 +43,7 @@ dependencies:
   - xarray_filters
   - yaml
   - six
+  - gdal=2.1.*
   - pip:
       - cachey
+      - git+https://github.com/ContinuumIO/xarray_filters.git # for testing

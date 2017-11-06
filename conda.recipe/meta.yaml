@@ -69,3 +69,5 @@ test:
 
   requires:
     - pytest
+    - gdal=2.1.*
+    - xarray_filters

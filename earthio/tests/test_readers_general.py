@@ -37,36 +37,36 @@ def test_reader_kwargs_window(ftype):
     if ftype == 'hdf5':
         _, layer_specs = get_layer_specs(HDF5_FILES[0])
         meta = load_hdf5_meta(HDF5_FILES[0])
-        full_es = load_hdf5_array(HDF5_FILES[0], meta, layer_specs)
+        full_dset = load_hdf5_array(HDF5_FILES[0], meta, layer_specs)
     elif ftype == 'hdf4':
         layer_specs = hdf4_layer_specs
         meta = load_hdf4_meta(HDF4_FILES[0])
-        full_es = load_hdf4_array(HDF4_FILES[0], meta, layer_specs)
+        full_dset = load_hdf4_array(HDF4_FILES[0], meta, layer_specs)
     elif ftype == 'tif':
         layer_specs = tif_layer_specs[:2]
         meta = load_dir_of_tifs_meta(TIF_DIR, layer_specs=layer_specs)
-        full_es = load_dir_of_tifs_array(TIF_DIR, meta, layer_specs)
+        full_dset = load_dir_of_tifs_array(TIF_DIR, meta, layer_specs)
     layer_specs_window = []
     windows = {}
     for b in layer_specs:
         name = b.name
-        val = getattr(full_es, name).values
+        val = getattr(full_dset, name).values
         shp = val.shape
         b = b.get_params()
         b['window'] = windows[name] = (((10, 200), (210, 400)))
         layer_specs_window.append(LayerSpec(**b))
 
     if ftype == 'hdf4':
-        es = load_hdf4_array(HDF4_FILES[0], meta, layer_specs_window)
+        dset = load_hdf4_array(HDF4_FILES[0], meta, layer_specs_window)
     elif ftype == 'hdf5':
-        es = load_hdf5_array(HDF5_FILES[0], meta, layer_specs_window)
+        dset = load_hdf5_array(HDF5_FILES[0], meta, layer_specs_window)
     elif ftype == 'tif':
         meta_small = load_dir_of_tifs_meta(TIF_DIR, layer_specs=layer_specs_window)
-        es = load_dir_of_tifs_array(TIF_DIR, meta_small, layer_specs_window)
+        dset = load_dir_of_tifs_array(TIF_DIR, meta_small, layer_specs_window)
 
-    for layer in es.data_vars:
+    for layer in dset.data_vars:
         window = windows[layer]
-        subset = getattr(es, layer, None)
+        subset = getattr(dset, layer, None)
         assert subset is not None
         subset = subset.values
         expected_shape = tuple(map(np.diff, window))
