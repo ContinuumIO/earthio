@@ -389,15 +389,15 @@ def _set_na_from_valid_range(values, valid_range):
 
 
 
-def set_na_from_meta(es, **kwargs):
+def set_na_from_meta(dset, **kwargs):
     '''Set NaNs based on "valid_range" "invalid_range" and/or "missing"
      in xr.Dataset attrs or xr.DataArray attrs
 
     Parameters:
-        :es: xr.Dataset
+        :dset: xr.Dataset
         :kwargs: ignored
 
-    Recursively searches es's attrs for keys loosely matching:
+    Recursively searches dset's attrs for keys loosely matching:
 
      - "valid_range": expected value is a sequence of length 2
      - "invalid_range": expected value is a sequence of length 2
@@ -405,18 +405,18 @@ def set_na_from_meta(es, **kwargs):
 
     Band attributes are also searched.
 
-    For example with ``es.layer_1.attrs.valid_range == [0, 1]`` all values in layer_1 outside (0, 1)
-    would be NaN. With ``es.attrs.valid_range == [0, 1]`` all values in all layers
+    For example with ``dset.layer_1.attrs.valid_range == [0, 1]`` all values in layer_1 outside (0, 1)
+    would be NaN. With ``dset.attrs.valid_range == [0, 1]`` all values in all layers
     outside of (0, 1) would be assigned NaN.
 
     '''
-    attrs = es.attrs
-    for layer in es.data_vars:
-        layer_arr = getattr(es, layer)
+    attrs = dset.attrs
+    for layer in dset.data_vars:
+        layer_arr = getattr(dset, layer)
         if 'int' in str(layer_arr.values.dtype):
             layer_arr.values = layer_arr.values.astype(np.float32)
-    for idx, layer in enumerate(es.data_vars):
-        layer_arr = getattr(es, layer)
+    for idx, layer in enumerate(dset.data_vars):
+        layer_arr = getattr(dset, layer)
         val = layer_arr.values
         invalid_range_b = extract_invalid_range(**layer_arr.attrs)
         if invalid_range_b is not None:

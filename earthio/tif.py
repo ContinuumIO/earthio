@@ -155,7 +155,7 @@ def open_prefilter(filename, meta, **reader_kwargs):
         raise
 
 def load_dir_of_tifs_array(dir_of_tiffs, meta, layer_specs=None):
-    '''Return an xr.Dataset where each subdataset is a DataArray
+    '''Return an xr.Dataset where each subdataset is a xr.DataArray
 
     Parameters:
         :dir_of_tiffs: directory of GeoTiff files where each is a

@@ -93,7 +93,7 @@ def load_subdataset(subdataset, attrs, layer_spec, **reader_kwargs):
 
 
 def load_hdf5_array(datafile, meta, layer_specs):
-    '''Return an xr.Dataset where each subdataset is a DataArray
+    '''Return an xr.Dataset where each subdataset is a xr.DataArray
 
     Parameters:
         :datafile: filename
@@ -103,7 +103,7 @@ def load_hdf5_array(datafile, meta, layer_specs):
                     as layers
 
     Returns:
-        :es: An xr.Dataset
+        :dset: An xr.Dataset
     '''
     import gdal
     from gdalconst import GA_ReadOnly

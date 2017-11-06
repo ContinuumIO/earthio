@@ -55,7 +55,7 @@ def load_layers(filename, meta=None, layer_specs=None, reader=None):
         :reader:     named reader from earthio - one of:  ('tif', 'hdf4', 'hdf5', 'netcdf')
 
     Returns:
-        :es:         xr.Dataset with layers specified by layer_specs as DataArrays in "data_vars" attribute
+        :dset:         xr.Dataset with layers specified by layer_specs as xr.DataArray objects in "data_vars" attribute
     '''
     ftype = reader or _find_file_type(filename)
     if meta is None:
@@ -73,11 +73,11 @@ def load_layers(filename, meta=None, layer_specs=None, reader=None):
         return load_dir_of_tifs_array(filename, meta, layer_specs=layer_specs)
     elif ftype == 'hdf':
         try:
-            es = load_hdf4_array(filename, meta, layer_specs=layer_specs)
+            dset = load_hdf4_array(filename, meta, layer_specs=layer_specs)
         except Exception as e:
             logger.info('NOTE: guessed HDF4 type. Failed: {}. \nTrying HDF5'.format(repr(e)))
-            es = load_hdf5_array(filename, meta, layer_specs=layer_specs)
-        return es
+            dset = load_hdf5_array(filename, meta, layer_specs=layer_specs)
+        return dset
 
 
 def _load_meta(filename, ftype, **kwargs):

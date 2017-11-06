@@ -42,19 +42,19 @@ def test_read_meta(hdf):
 def test_read_array(hdf):
 
     meta = load_hdf4_meta(hdf)
-    es = load_hdf4_array(hdf, meta, layer_specs)
-    for layer in es.data_vars:
-        sample = getattr(es, layer)
+    dset = load_hdf4_array(hdf, meta, layer_specs)
+    for layer in dset.data_vars:
+        sample = getattr(dset, layer)
         mean_y = np.mean(sample.y)
         mean_x = np.mean(sample.x)
         layer_names = np.array([b.name for b in layer_specs])
         assert sample.y.size == 1200
         assert sample.x.size == 1200
-        assert len(es.data_vars) == len(layer_specs)
-        assert np.all(es.layer_order == [x.name for x in layer_specs])
+        assert len(dset.data_vars) == len(layer_specs)
+        assert np.all(dset.layer_order == [x.name for x in layer_specs])
         assertions_on_layer_metadata(sample.attrs)
-    es2 = load_hdf4_array(hdf, meta, layer_specs=None)
-    assert len(es2.data_vars) > len(es.data_vars)
+    dset2 = load_hdf4_array(hdf, meta, layer_specs=None)
+    assert len(dset2.data_vars) > len(dset.data_vars)
 
 @pytest.mark.skipif(not HDF4_FILES,
                reason='elm-data repo has not been cloned')
@@ -65,7 +65,7 @@ def test_reader_kwargs():
         b['buf_xsize'], b['buf_ysize'] = 200, 300
         layer_specs_kwargs.append(LayerSpec(**b))
     meta = load_hdf4_meta(HDF4_FILES[0])
-    es = load_hdf4_array(HDF4_FILES[0], meta, layer_specs_kwargs)
-    for b in es.layer_order:
-        assert getattr(es, b).values.shape == (300, 200)
+    dset = load_hdf4_array(HDF4_FILES[0], meta, layer_specs_kwargs)
+    for b in dset.layer_order:
+        assert getattr(dset, b).values.shape == (300, 200)
 

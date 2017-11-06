@@ -61,7 +61,7 @@ def load_hdf4_meta(datafile):
 
 
 def load_hdf4_array(datafile, meta, layer_specs=None):
-    '''Return an xr.Dataset where each subdataset is a DataArray
+    '''Return an xr.Dataset where each subdataset is a xr.DataArray
 
     Parameters:
         :datafile: filename
