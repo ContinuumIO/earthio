@@ -17,15 +17,13 @@ import numpy as np
 from rasterio.coords import BoundingBox
 import scipy.interpolate as spi
 
-import attr
-from attr.validators import instance_of
 from six import string_types, PY2
+from xarray_filters.pipeline import Step
 
-__all__ = ['Canvas', 'xy_to_row_col', 'row_col_to_xy',
+__all__ = ['xy_to_row_col', 'row_col_to_xy',
            'geotransform_to_coords', 'geotransform_to_bounds',
-           'canvas_to_coords', 'VALID_X_NAMES', 'VALID_Y_NAMES',
-           'xy_canvas','dummy_canvas', 'LayerSpec',
-           'set_na_from_meta', 'get_shared_canvas',
+           'VALID_X_NAMES', 'VALID_Y_NAMES',
+           'LayerSpec', 'set_na_from_meta',
            'take_geo_transform_from_meta', 'import_callable',
            'meta_strings_to_dict']
 logger = logging.getLogger(__name__)
@@ -94,32 +92,17 @@ def import_callable(func_or_not, required=True, context=''):
     return func
 
 
-@attr.s
-class Canvas(object):
-    geo_transform = attr.ib()
-    buf_xsize = attr.ib()
-    buf_ysize = attr.ib()
-    dims = attr.ib()
-    ravel_order = attr.ib(default='C')
-    zbounds = attr.ib(default=None)
-    tbounds = attr.ib(default=None)
-    zsize = attr.ib(default=None)
-    tsize = attr.ib(default=None)
-    bounds = attr.ib(default=None)
-
-
-@attr.s
-class LayerSpec(object):
-    search_key = attr.ib()
-    search_value = attr.ib()
-    name = attr.ib()
-    key_re_flags = attr.ib(default=None)
-    value_re_flags = attr.ib(default=None)
-    buf_xsize = attr.ib(default=None)
-    buf_ysize = attr.ib(default=None)
-    window = attr.ib(default=None)
-    meta_to_geotransform = attr.ib(default=None)
-    stored_coords_order = attr.ib(default=('y', 'x'))
+class LayerSpec(Step): # get_params/set_params
+    search_key = None
+    search_value = None
+    name = None
+    key_re_flags = None
+    value_re_flags = None
+    buf_xsize = None
+    buf_ysize = None
+    window = None
+    meta_to_geotransform = None
+    stored_coords_order = None
 
 
 VALID_X_NAMES = ('lon','longitude', 'x') # compare with lower-casing
@@ -129,20 +112,6 @@ VALID_TIME_NAMES = ('t', 'time', 'datetime', 'date')
 
 DEFAULT_GEO_TRANSFORM = (-180, .1, 0, 90, 0, -.1)
 
-def dummy_canvas(buf_xsize, buf_ysize, dims, **kwargs):
-    dummy = {'geo_transform': DEFAULT_GEO_TRANSFORM,
-             'buf_xsize': buf_xsize,
-             'buf_ysize': buf_ysize,
-             'dims': dims,}
-    dummy.update(kwargs)
-    dummy['bounds'] = geotransform_to_bounds(dummy['buf_xsize'],
-                                             dummy['buf_ysize'],
-                                             dummy['geo_transform'])
-    # TODO review all places where this function
-    # is called by uncommenting the following
-    # and noting test failures
-    #raise ValueError(repr((buf_xsize, buf_ysize, dims, kwargs)))
-    return Canvas(**dummy)
 
 def xy_to_row_col(x, y, geo_transform):
     ''' Get row and column idx's from x and y where
@@ -179,7 +148,9 @@ def _np_arr_to_coords_dims(np_arr,
                  handle=None):
 
     layer_meta = layer_meta or OrderedDict()
-    stored_coords_order = getattr(layer_spec, 'stored_coords_order', DEFAULT_COORDS_ORDER)
+    stored_coords_order = getattr(layer_spec, 'stored_coords_order', None)
+    if stored_coords_order is None:
+        stored_coords_order = DEFAULT_COORDS_ORDER
     yfirst = stored_coords_order[0] == 'y'
     shp = np_arr.shape
     if 1 in shp:
@@ -211,7 +182,7 @@ def _np_arr_to_coords_dims(np_arr,
         if extra_dim == 0:
             dims = ('level',) + dims
         elif extra_dim == 2:
-            dims = dims + ('level')
+            dims = dims + ('level',)
     else:
         dims = tuple('dim_{}'.format(idx) for idx in range(len(shp)))
     layer_meta.update(reader_kwargs)
@@ -224,19 +195,27 @@ def _np_arr_to_coords_dims(np_arr,
         rows, cols = np_arr.shape
     else:
         rows, cols = np_arr.T.shape
-    if reader_kwargs:
-        if 'height' not in layer_meta or 'width' not in layer_meta:
-            raise ValueError('Expected "height" and "width" keys/values in "layer_meta" argument')
-        multy = layer_meta['height'] / reader_kwargs.get('height', layer_meta['height'])
-        multx = layer_meta['width'] / reader_kwargs.get('width', layer_meta['width'])
+    if reader_kwargs and 'buf_ysize' in layer_meta or 'buf_xsize' in layer_meta:
+        h = layer_meta.get('height', layer_meta['buf_ysize'])
+        w = layer_meta.get('width', layer_meta['buf_xsize'])
+        multy = h / reader_kwargs.get('height', h)
+        multx = w / reader_kwargs.get('width', w)
     else:
         multx = multy = 1.
     if geo_transform is None:
-        if not hasattr(handle, 'get_transform'):
+        trans_funcs = ('GetGeoTransform', # GDAL handle
+                       'get_transform',   # rasterio handle
+                       )
+        for func in trans_funcs:
+            func = getattr(handle, func, None)
+            if func:
+                break
+        if not callable(func):
             raise ValueError('Expected file handle with .get_transform method')
-        layer_meta['geo_transform'] = handle.get_transform()
+        layer_meta['geo_transform'] = func()
     else:
         layer_meta['geo_transform'] = geo_transform
+    layer_meta['geo_transform'] = np.array(layer_meta['geo_transform'], dtype=np.float64)
     layer_meta['geo_transform'][1]  *= multx
     layer_meta['geo_transform'][-1] *= multy
 
@@ -252,77 +231,13 @@ def _np_arr_to_coords_dims(np_arr,
         coords = coords_stacks + coords
     elif extra_dim == 2:
         coords += coords_stacks
-    canvas = Canvas(geo_transform=geo_transform,
-                    buf_xsize=cols,
-                    buf_ysize=rows,
-                    dims=dims,
-                    bounds=geotransform_to_bounds(cols, rows, geo_transform),
-                    ravel_order='C')
-    return np_arr, coords, dims, canvas, geo_transform
-
-
-def _validate_dim(valid_names, dims):
-    for name in valid_names:
-        for d in dims:
-            if d.lower().startswith(name.lower()):
-                return d
-
-
-def canvas_to_coords(canvas):
-    dims = canvas.dims
-    x, y = geotransform_to_coords(canvas.buf_xsize, canvas.buf_ysize,
-                                  canvas.geo_transform)
-    label_x = _validate_dim(VALID_X_NAMES, dims) or 'x'
-    label_y = _validate_dim(VALID_Y_NAMES, dims) or 'y'
-    coords = [(label_y, y), (label_x, x)]
-    if canvas.zbounds is not None and canvas.zsize is not None:
-        z = np.linspace(zbounds[0], zbounds[1], zsize)
-    elif canvas.zbounds is None and canvas.zsize is None:
-        z = None
-    else:
-        raise ValueError()
-    # TODO Refine later for non-numeric time types
-    if canvas.tbounds is not None and canvas.tsize is not None:
-        t = np.linspace(tbounds[0], tbounds[1], tsize)
-    elif canvas.tbounds is None and canvas.tsize is None:
-        t = None
-    else:
-        raise ValueError()
-    coords += [('z', z), ('t', t)]
-    coords = dict(coords)
-    try:
-        coords = OrderedDict((d, coords[d]) for d in dims)
-    except:
-        raise KeyError('Failed on looking up dims {} in coords with keys {}'.format(dims, coords.keys()))
-    if any(coords[d] is None for d in dims):
-        raise ValueError('coords.keys(): {} is not '
-                         'inclusive of all dims'.format(coords.keys(), dims))
-    return coords
-
-
-
-def _extract_valid_xyzt(layer_arr):
-    validators = (VALID_X_NAMES, VALID_Y_NAMES, VALID_Z_NAMES, VALID_TIME_NAMES)
-    output = []
-    for valid in validators:
-        name = _validate_dim(valid, layer_arr.dims)
-        if name:
-            points = getattr(layer_arr, name)
-            output.append((name, points))
-        else:
-            output.append((None, None))
-    return tuple(output)
-
-
-def xy_canvas(geo_transform, buf_xsize, buf_ysize, dims, ravel_order='C'):
-    return Canvas(**OrderedDict((
-        ('geo_transform', geo_transform),
-        ('buf_ysize', buf_ysize),
-        ('buf_xsize', buf_xsize),
-        ('dims', dims),
-        ('ravel_order', ravel_order),
-        ('bounds', geotransform_to_bounds(buf_xsize, buf_ysize, geo_transform)),
-    )))
+    attrs = dict(geo_transform=layer_meta['geo_transform'],
+                 buf_xsize=cols,
+                 buf_ysize=rows,
+                 dims=dims,
+                 bounds=geotransform_to_bounds(cols, rows, layer_meta['geo_transform']),
+                 ravel_order='C')
+    return np_arr, coords, dims, attrs
 
 
 def window_to_gdal_read_kwargs(**reader_kwargs):
@@ -515,24 +430,6 @@ def set_na_from_meta(es, **kwargs):
         if missing_value_b is not None:
             logger.debug('Missing value {}'.format(missing_value_b))
             val[val == np.array([missing_value_b], dtype=val.dtype)[0]] = np.NaN
-
-
-def get_shared_canvas(es):
-    '''Return a Canvas if all layers (DataArrays) share it, else False'''
-    canvas = getattr(es, 'canvas', None)
-    if canvas is not None:
-        return canvas
-    old_canvas = None
-    shared = True
-    for layer in es.data_vars:
-        canvas = getattr(getattr(es, layer), 'canvas', None)
-        if canvas == old_canvas or old_canvas is None:
-            pass
-        else:
-            shared = False
-            break
-        old_canvas = canvas
-    return (canvas if shared else None)
 
 
 def _meta_strings_to_dict(s):

@@ -32,12 +32,6 @@ def _validate_array_test_result(ds):
     mean_y = np.mean(sample.y)
     mean_x = np.mean(sample.x)
 
-    assert sorted((mean_x,
-            ds.canvas.bounds.left,
-            ds.canvas.bounds.right))[1] == mean_x
-    assert sorted((mean_y,
-            ds.canvas.bounds.top,
-            ds.canvas.bounds.bottom))[1] == mean_y
     assert ds.y.size == 1800
     assert ds.x.size == 3600
 

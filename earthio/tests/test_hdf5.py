@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import glob
 import os
 
-import attr
 import numpy as np
 import pytest
 
@@ -62,7 +61,6 @@ def test_load_subdataset():
     data_array = load_subdataset(data_file.GetSubDatasets()[0][0],
                                  meta['layer_meta'][0],
                                  layer_specs[0])
-    assert 'canvas' in data_array.attrs.keys()
     assert data_array.data is not None
 
 
@@ -87,7 +85,7 @@ def test_reader_kwargs():
     sub_dataset_names, layer_specs = get_layer_specs(HDF5_FILES[0])
     layer_specs_kwargs = []
     for b in layer_specs:
-        b = attr.asdict(b)
+        b = b.get_params()
         b['buf_xsize'], b['buf_ysize'] = 200, 300
         layer_specs_kwargs.append(LayerSpec(**b))
     meta = load_hdf5_meta(HDF5_FILES[0])

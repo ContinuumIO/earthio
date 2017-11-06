@@ -1,9 +1,11 @@
 name: earth-env
 channels:
-  - gbrener
   - ioam
   - conda-forge
   - scitools/label/dev
+  - elm
+  - elm/label/dev
+
 dependencies:
   - attrs
   - bokeh
@@ -38,6 +40,7 @@ dependencies:
   - statsmodels
   - tblib
   - xarray
+  - xarray_filters
   - yaml
   - six
   - pip:
