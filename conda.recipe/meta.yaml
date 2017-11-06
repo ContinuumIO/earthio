@@ -68,3 +68,4 @@ test:
 
   requires:
     - pytest
+    - xarray_filters

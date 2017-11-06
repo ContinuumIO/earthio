@@ -2,6 +2,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import glob
 import os
+
+from xarray_filters.tests.test_data import ts_clustering_example
+
 EARTHIO_EXAMPLE_DATA_PATH = os.environ.get('EARTHIO_EXAMPLE_DATA_PATH')
 if not EARTHIO_EXAMPLE_DATA_PATH:
     EARTHIO_EXAMPLE_DATA_PATH = os.environ.get('ELM_EXAMPLE_DATA_PATH')

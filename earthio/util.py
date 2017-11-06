@@ -476,10 +476,10 @@ def _set_na_from_valid_range(values, valid_range):
 
 def set_na_from_meta(es, **kwargs):
     '''Set NaNs based on "valid_range" "invalid_range" and/or "missing"
-     in MLDataset attrs or DataArray attrs
+     in xr.Dataset attrs or xr.DataArray attrs
 
     Parameters:
-        :es: earthio.MLDataset
+        :es: xr.Dataset
         :kwargs: ignored
 
     Recursively searches es's attrs for keys loosely matching:

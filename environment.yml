@@ -42,3 +42,4 @@ dependencies:
   - six
   - pip:
       - cachey
+      - git+https://github.com/ContinuumIO/xarray_filters.git # for testing

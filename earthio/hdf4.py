@@ -6,7 +6,7 @@
 
 Tools for reading HDF4 files.  Typically use the interface through
 
-    - :func:`earthio.load_array`
+    - :func:`earthio.load_layers`
     - :func:`earthio.load_meta`
 
 '''
@@ -62,7 +62,7 @@ def load_hdf4_meta(datafile):
 
 
 def load_hdf4_array(datafile, meta, layer_specs=None):
-    '''Return an MLDataset where each subdataset is a DataArray
+    '''Return an xr.Dataset where each subdataset is a DataArray
 
     Parameters:
         :datafile: filename
@@ -76,7 +76,6 @@ def load_hdf4_array(datafile, meta, layer_specs=None):
     '''
     import gdal
     from gdalconst import GA_ReadOnly
-    from earthio import MLDataset
     from earthio.metadata_selection import match_meta
     logger.debug('load_hdf4_array: {}'.format(datafile))
     f = gdal.Open(datafile, GA_ReadOnly)
@@ -138,4 +137,4 @@ def load_hdf4_array(datafile, meta, layer_specs=None):
     attrs = copy.deepcopy(attrs)
     attrs['layer_order'] = layer_order
     gc.collect()
-    return MLDataset(elm_store_data, attrs=attrs)
+    return xr.Dataset(elm_store_data, attrs=attrs)

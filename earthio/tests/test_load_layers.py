@@ -20,11 +20,11 @@ if NETCDF_FILES:
     TRIALS['netcdf'] = NETCDF_FILES[0]
 
 @pytest.mark.parametrize('ftype,filename', sorted(TRIALS.items()))
-def test_load_array(ftype, filename):
+def test_load_layers(ftype, filename):
     if ftype == 'tif':
         # avoid memory trouble
         layer_specs = tif_layer_specs[:3]
     else:
         layer_specs = None
-    assert isinstance(load_array(filename, layer_specs=layer_specs), MLDataset)
+    assert isinstance(load_layers(filename, layer_specs=layer_specs), xr.Dataset)
 

@@ -28,7 +28,7 @@ else:
 
 
 def test_flatten_no_meta():
-    '''Tests MLDataset can be flattened / inverse even with no attrs'''
+    '''Tests xr.Dataset can be flattened / inverse even with no attrs'''
     es = random_raster()
     flat = flatten(es)
     inv = inverse_flatten(flat)
@@ -38,7 +38,7 @@ def test_flatten_no_meta():
 
 
 def test_na_drop_no_meta():
-    '''Tests MLDataset can be flattened / inverse even with NaNs
+    '''Tests xr.Dataset can be flattened / inverse even with NaNs
     dropped and no attrs'''
     es = random_raster()
     flat = flatten(es)

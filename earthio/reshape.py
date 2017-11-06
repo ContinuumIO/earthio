@@ -20,7 +20,7 @@ import numpy as np
 import scipy.interpolate as spi
 import xarray as xr
 
-from earthio import MLDataset, Canvas
+from earthio import Canvas
 from earthio.util import (canvas_to_coords,
                               VALID_X_NAMES,
                               VALID_Y_NAMES,
@@ -41,12 +41,12 @@ __all__ = ['select_canvas',
            ]
 
 def transpose(es, new_dims):
-    '''Transpose an MLDataset - elm.pipeline.steps.Transpose
+    '''Transpose an xr.Dataset - elm.pipeline.steps.Transpose
 
     Parameters:
         :new_dims: passed to xarray.DataArray.transpose
     Returns:
-        :MLDataset transposed
+        :Dataset: transposed
     '''
     trans = OrderedDict()
     for layer in es.data_vars:
@@ -57,11 +57,11 @@ def transpose(es, new_dims):
         canvas = attr.asdict(trans[layer].canvas)
         canvas['dims'] = new_dims
         trans[layer].attrs['canvas'] = Canvas(**canvas)
-    return MLDataset(trans, attrs=es.attrs)
+    return xr.Dataset(trans, attrs=es.attrs)
 
 
 def aggregate_simple(es, **kwargs):
-    '''aggregate MLDataset - elm.pipeline.steps.Agg
+    '''aggregate xr.Dataset - elm.pipeline.steps.Agg
 
     Parameters:
         :kwargs: Keywords may contain
@@ -70,7 +70,7 @@ def aggregate_simple(es, **kwargs):
             - :axis: dimension integer
 
     Returns:
-        :MLDataset: aggregated
+        :Dataset: aggregated
 
     '''
     func = kwargs['func']
@@ -92,23 +92,23 @@ def aggregate_simple(es, **kwargs):
         lost_axes.append(data_arr.dims.index(dim) if dim else axis)
         agged[layer] = getattr(data_arr, func)(**kw)
     if len(set(lost_axes)) != 1:
-        raise ValueError('Cannot aggregate when the axis (dim) of aggregation is not the same for all DataArrays in MLDataset')
-    return MLDataset(agged, attrs=es.attrs, add_canvas=False, lost_axis=lost_axes[0])
+        raise ValueError('Cannot aggregate when the axis (dim) of aggregation is not the same for all DataArrays in xr.Dataset')
+    return xr.Dataset(agged, attrs=es.attrs, add_canvas=False, lost_axis=lost_axes[0])
 
 
 def select_canvas(es, new_canvas):
-    '''reindex_like new_canvas for every layer (DataArray) in MLDataset
+    '''reindex_like new_canvas for every layer (DataArray) in xr.Dataset
 
     Parameters:
-        :es: MLDataset
+        :es: xr.Dataset
         :new_canvas: an earthio.Canvas object
 
     Returns:
-        :es: MLDataset where every layer (DataArray) has the same
+        :es: xr.Dataset where every layer (DataArray) has the same
             coordinates - those of new_canvas
     '''
     if getattr(es, '_dummy_canvas', False):
-        raise ValueError('This MLDataset cannot be run through select_canvas because geo transform was not read correctly from input data')
+        raise ValueError('This xr.Dataset cannot be run through select_canvas because geo transform was not read correctly from input data')
     es_new_dict = OrderedDict()
     for layer in es.data_vars:
         data_arr = getattr(es, layer)
@@ -132,13 +132,13 @@ def select_canvas(es, new_canvas):
         es_new_dict[layer] = data_arr
     attrs = copy.deepcopy(es.attrs)
     attrs['canvas'] = new_canvas
-    es_new = MLDataset(es_new_dict, attrs=attrs)
+    es_new = xr.Dataset(es_new_dict, attrs=attrs)
 
     return es_new
 
 
 def drop_na_rows(flat):
-    '''Drop any NA rows from MLDataset flat'''
+    '''Drop any NA rows from xr.Dataset flat'''
     check_is_flat(flat)
     flat_dropped = flat.flat.dropna(dim='space')
     flat_dropped.attrs.update(flat.attrs)
@@ -146,20 +146,20 @@ def drop_na_rows(flat):
     attrs = copy.deepcopy(flat.attrs)
     attrs.update(flat_dropped.attrs)
     attrs['shape_before_drop_na_rows'] = flat.flat.values.shape
-    no_na = MLDataset({'flat': flat_dropped}, attrs=attrs)
+    no_na = xr.Dataset({'flat': flat_dropped}, attrs=attrs)
     return no_na
 
 
 def flatten(es, ravel_order='C'):
-    '''Given an MLDataset with different rasters (DataArray) as layers,
+    '''Given an xr.Dataset with different rasters (DataArray) as layers,
     flatten the rasters into a single 2-D DataArray called "flat"
-    in a new MLDataset.
+    in a new xr.Dataset.
 
     Params:
-        :elm_store:  3-d MLDataset (layer, y, x)
+        :elm_store:  3-d xr.Dataset (layer, y, x)
 
     Returns:
-        :elm_store:  2-d MLDataset (space, layer)
+        :elm_store:  2-d xr.Dataset (space, layer)
     '''
     if check_is_flat(es, raise_err=False):
         return es
@@ -193,7 +193,7 @@ def flatten(es, ravel_order='C'):
     attrs['old_dims'] = old_dims
     attrs['flatten_data_array'] = True
     attrs.update(copy.deepcopy(es.attrs))
-    flat = MLDataset({'flat': xr.DataArray(store,
+    flat = xr.Dataset({'flat': xr.DataArray(store,
                         coords=[('space', np.arange(store.shape[0])),
                                 ('layer', layer_names)],
                         dims=('space',
@@ -217,7 +217,7 @@ def filled_flattened(na_dropped):
     attrs.pop('shape_before_drop_na_rows', None)
     attrs['notnull_shape'] = na_dropped.flat.values.shape
     layer = attrs['layer_order']
-    filled_es = MLDataset({'flat': xr.DataArray(filled,
+    filled_es = xr.Dataset({'flat': xr.DataArray(filled,
                                      coords=[('space', np.arange(shp[0])),
                                             ('layer', layer)],
                                      dims=('space', 'layer'),
@@ -228,17 +228,17 @@ def filled_flattened(na_dropped):
 
 
 def check_is_flat(flat, raise_err=True):
-    '''Check if an MLDataset has a DataArray called flat with dimensions (space, layer)
+    '''Check if an xr.Dataset has a DataArray called flat with dimensions (space, layer)
 
     Parameters:
-        :flat: an MLDataset
+        :flat: an xr.Dataset
         :raise_err: raise or not
 
     Returns:
         :bool: ``True`` if flat ``False`` or ``ValueError`` if not flat (raise_err=True)
     '''
     if not hasattr(flat, 'flat') or not all(hasattr(flat.flat, at) for at in ('space', 'layer')):
-        msg = 'Expected an MLDataset/Dataset with attribute "flat" and dims ("space", "layer")'
+        msg = 'Expected an xr.Dataset with attribute "flat" and dims ("space", "layer")'
         if raise_err:
             raise ValueError(msg)
         else:
@@ -247,16 +247,16 @@ def check_is_flat(flat, raise_err=True):
 
 
 def inverse_flatten(flat, add_canvas=False, **attrs):
-    '''Given an MLDataset that has been flattened to (space, layer) dims,
-    return a 3-d MLDataset with dims (layer, y, x).  Requires that metadata
-    about x,y dims were preserved when the 2-d input MLDataset was created
+    '''Given an xr.Dataset that has been flattened to (space, layer) dims,
+    return a 3-d xr.Dataset with dims (layer, y, x).  Requires that metadata
+    about x,y dims were preserved when the 2-d input xr.Dataset was created
 
     Params:
-        :flat: a 2-d MLDataset (space, layer)
-        :attrs: attribute dict to update the dict of the returned MLDataset
+        :flat: a 2-d xr.Dataset (space, layer)
+        :attrs: attribute dict to update the dict of the returned xr.Dataset
 
     Returns:
-        :es:  MLDataset (layer, y, x)
+        :es:  xr.Dataset (layer, y, x)
     '''
     flat = filled_flattened(flat)
     attrs2 = copy.deepcopy(flat.attrs)
@@ -284,4 +284,4 @@ def inverse_flatten(flat, add_canvas=False, **attrs):
                                 dims=dims,
                                 attrs=attrs)
         es_new_dict[layer] = data_arr
-    return MLDataset(es_new_dict, attrs=attrs, add_canvas=add_canvas)
+    return xr.Dataset(es_new_dict, attrs=attrs, add_canvas=add_canvas)
