@@ -21,18 +21,12 @@ from earthio.util import LayerSpec
 
 if TIF_FILES:
     TIF_DIR = os.path.dirname(TIF_FILES[0])
-layer_specs = [
-    LayerSpec('name', '_B1.TIF', 'layer_1'),
-    LayerSpec('name', '_B2.TIF', 'layer_2'),
-    LayerSpec('name', '_B3.TIF', 'layer_3'),
-    LayerSpec('name', '_B4.TIF', 'layer_4'),
-    LayerSpec('name', '_B5.TIF', 'layer_5'),
-    LayerSpec('name', '_B6.TIF', 'layer_6'),
-    LayerSpec('name', '_B7.TIF', 'layer_7'),
-    LayerSpec('name', '_B9.TIF', 'layer_9'),
-    LayerSpec('name', '_B10.TIF', 'layer_10'),
-    LayerSpec('name', '_B11.TIF', 'layer_11'),
-]
+
+ls = lambda n: LayerSpec(search_key='name',
+                         search_value='_B{}.TIF'.format(n),
+                         name='layer_{}'.format(n),
+                         **kwargs)
+layer_specs = [ls(n) for n in (list(range(1, 8)) + list(range(9, 12)))]
 
 @pytest.mark.skipif(not TIF_FILES,
                reason='elm-data repo has not been cloned')
