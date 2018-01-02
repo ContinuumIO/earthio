@@ -31,7 +31,6 @@ requirements:
     - numba
     - numpy
     - pandas
-    - paramnb
     - pyproj
     - pytables
     - python

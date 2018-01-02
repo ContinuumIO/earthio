@@ -7,16 +7,15 @@ channels:
   - elm/label/dev
 
 dependencies:
-  - attrs
-  - bokeh
-  - cartopy
+  - conda-forge::bokeh
+  - anaconda::cartopy
   - colorcet
   - dask
   - datashader
   - dill
   - distributed
-  - geoviews
-  - holoviews
+  - conda-forge::geoviews
+  - conda-forge::holoviews
   - iris
   - jupyter
   - krb5
@@ -25,14 +24,15 @@ dependencies:
   - numba
   - numpy
   - pandas
-  - paramnb
   - pbzip2  # elm-data
+  - conda-forge::pydap
+  - conda-forge::pynio
   - pyproj
   - pytables
   - pytest
-  - python=3.5
+  - python=2.7
   - python-magic  # elm-data
-  - rasterio
+  - anaconda::rasterio
   - requests
   - scikit-learn
   - scipy
