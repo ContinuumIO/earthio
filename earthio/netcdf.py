@@ -117,14 +117,20 @@ def load_netcdf_array(datafile, meta, layer_specs=None):
     '''
     logger.debug('load_netcdf_array: {}'.format(datafile))
     ds = xr.open_dataset(datafile)
+    def get_name(v):
+        key = getattr(v, 'name', v)
+        return key
     if layer_specs:
         data = []
         if isinstance(layer_specs, dict):
-            data = { k: ds[getattr(v, 'name', v)] for k, v in layer_specs.items() }
+            data = { k: ds[get_name(v)]
+                     for k, v in layer_specs.items()
+                         if ds.get(get_name(v)) is not None}
             layer_spec = tuple(layer_specs.values())[0]
         if isinstance(layer_specs, (list, tuple)):
-            data = {getattr(v, 'name', v): ds[getattr(v, 'name', v)]
-                    for v in layer_specs }
+            data = {get_name(v): ds[get_name(v)]
+                    for v in layer_specs
+                        if ds.get(get_name(v)) is not None}
             layer_spec = layer_specs[0]
         data = OrderedDict(data)
     else:
